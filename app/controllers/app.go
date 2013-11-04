@@ -23,22 +23,25 @@ func (c App) Index(search string, size, page int) revel.Result {
 	}
 
 	if size <= 0 {
-		size = 6
+		size = 5
 	}
 
+	// for pagination
+	size += 1
 	nextPage := page + 1
 	prevPage := page - 1
+
 	search = strings.TrimSpace(search)
 
 	var entries []*models.QdbEntry
 
 	if search == "" {
 		entries = loadEntries(c.Txn.Select(models.QdbEntry{},
-			`SELECT * FROM QdbEntry ORDER BY QuoteId DESC LIMIT ?, ?`, (page-1)*size, size))
+			`SELECT * FROM QdbEntry ORDER BY QuoteId DESC LIMIT ?, ?`, (page-1)*(size-1), size))
 	} else {
 		search = strings.ToLower(search)
 		entries = loadEntries(c.Txn.Select(models.QdbEntry{},
-			`SELECT * FROM QdbEntry WHERE LOWER(Quote) LIKE ? ORDER BY QuoteId LIMIT ?, ?`, "%"+search+"%", (page-1)*size, size))
+			`SELECT * FROM QdbEntry WHERE LOWER(Quote) LIKE ? ORDER BY QuoteId LIMIT ?, ?`, "%"+search+"%", (page-1)*(size), size))
 
 	}
 
