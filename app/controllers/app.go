@@ -75,7 +75,7 @@ func (c App) Post() revel.Result {
 func (c App) One(id int) revel.Result {
 	var entries []*models.QdbEntry
 	entries = loadEntries(c.Txn.Select(models.QdbEntry{},
-			`SELECT * FROM QdbEntry WHERE QuoteId = ? ORDER BY QuoteId DESC LIMIT 1`, id))
+		`SELECT * FROM QdbEntry WHERE QuoteId = ? ORDER BY QuoteId DESC LIMIT 1`, id))
 	if len(entries) == 0 {
 		c.Flash.Error("no such id")
 	}

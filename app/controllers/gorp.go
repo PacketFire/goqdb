@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"database/sql"
+	"github.com/PacketFire/goqdb/app/models"
 	"github.com/coopernurse/gorp"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/PacketFire/goqdb/app/models"
 	r "github.com/robfig/revel"
 	"github.com/robfig/revel/modules/db/app"
 )

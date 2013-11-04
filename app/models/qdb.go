@@ -1,9 +1,9 @@
 package models
 
 import (
-//        "github.com/coopernurse/gorp"
-//        "github.com/robfig/revel"
-//	"time"
+	//        "github.com/coopernurse/gorp"
+	//        "github.com/robfig/revel"
+	//	"time"
 	"strings"
 )
 
@@ -21,7 +21,7 @@ func (q *QdbEntry) Clip() string {
 	}
 
 	if lines := strings.Split(q.Quote, "\n"); len(lines) > 20 {
-		lines =	lines[:20]
+		lines = lines[:20]
 		lines = append(lines, "\r\n...")
 		return strings.Join(lines, " ")
 	}
