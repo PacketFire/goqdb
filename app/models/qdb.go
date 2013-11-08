@@ -3,16 +3,18 @@ package models
 import (
 	//        "github.com/coopernurse/gorp"
 	//        "github.com/robfig/revel"
-	//	"time"
+	"time"
 	"strings"
+	"fmt"
 )
 
 type QdbEntry struct {
 	QuoteId int
 	Quote   string
-	//	Created time.Time
-	//	Rating int
-	//	Author string
+	Created int64
+	Rating  int
+	Author string
+	//Tags string
 }
 
 func (q *QdbEntry) Clip() string {
@@ -27,4 +29,9 @@ func (q *QdbEntry) Clip() string {
 	}
 
 	return q.Quote
+}
+
+func (q *QdbEntry) DisplayTime() string {
+	t := time.Unix(0, q.Created)
+	return fmt.Sprintf("%v %v", t.Month().String(), t.Day())
 }

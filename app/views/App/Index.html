@@ -12,7 +12,15 @@
 
 	{{if .entries}}
 	{{range .entries}}
-		<a href="/q/{{.QuoteId}}"><pre>{{.Clip}}</pre></a>
+	<a href="/q/{{.QuoteId}}" class="quote_entry">
+		<div>
+			<p>
+				<span class="quote_rating">{{.Rating}}</span>
+				<time class="quote_time">{{.DisplayTime}}</time>
+			</p>
+			<pre>{{.Clip}}</pre>
+		</div>
+	</a>
 	{{end}}
 	<br/>
 	<div id="pageLinks">

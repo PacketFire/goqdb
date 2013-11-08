@@ -5,6 +5,7 @@ import (
 	"github.com/PacketFire/goqdb/app/routes"
 	"github.com/robfig/revel"
 	"strings"
+	"time"
 )
 
 type App struct {
@@ -70,6 +71,10 @@ func loadEntries(results []interface{}, err error) []*models.QdbEntry {
 
 func (c App) Post() revel.Result {
 	var quote models.QdbEntry
+
+	quote.Created = time.Now().UnixNano()
+	quote.Rating = 0
+
 	c.Params.Bind(&quote.Quote, "quote")
 	c.Txn.Insert(&quote)
 	return c.Redirect(routes.App.Index("", 0, 0))
