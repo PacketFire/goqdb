@@ -66,7 +66,7 @@ func loadEntries(results []interface{}, err error) []*models.QdbEntry {
 func (c App) Post() revel.Result {
 	var quote models.QdbEntry
 
-	quote.Created = time.Now().UnixNano()
+	quote.Created = time.Now().Unix()
 	quote.Rating = 0
 
 	c.Params.Bind(&quote.Author, "author")

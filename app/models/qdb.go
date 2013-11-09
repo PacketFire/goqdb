@@ -5,7 +5,6 @@ import (
 	//        "github.com/robfig/revel"
 	"time"
 	"strings"
-	"fmt"
 )
 
 type QdbEntry struct {
@@ -31,7 +30,6 @@ func (q *QdbEntry) Clip() string {
 	return q.Quote
 }
 
-func (q *QdbEntry) DisplayTime() string {
-	t := time.Unix(0, q.Created)
-	return fmt.Sprintf("%v %v", t.Month().String()[:3], t.Day())
+func (q *QdbEntry) Time() string {
+	return time.Unix(q.Created, 0).Format(time.UnixDate)
 }
