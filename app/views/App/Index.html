@@ -4,29 +4,50 @@
 <div id="main">
 	<a href="/"><h3>QDB</h3></a>
 	<br/>
-	<form method="post" action="/">
+	<form class="form-horizontal" method="post" action="/">
+	<fieldset>
+		<!--
+		<legend>quote</legend>
 		<textarea name="quote" rows="5"></textarea>
 		<br/>
-		<input type="submit" name="submit" value="submit"/>
+		<input class="btn btn-primary" type="submit" name="submit" value="submit"/>
+		-->
+
+		<!-- Textarea -->
+		<div class="control-group">
+			<textarea id="quote" name="quote" placeholder="quote"></textarea>
+		</div>
+
+		<!-- Text input-->
+		<div class="control-group">
+			<input id="author" name="author" type="text" placeholder="author" class="input-small" value="anon">
+		</div>
+
+		<!-- Submit -->
+		<div class="control-group">
+		    <button id="submit" name="submit" type="submit" class="btn btn-primary">submit</button>
+		</div>
+	</fieldset>
 	</form>
 
 	{{if .entries}}
-	<div id="pageLinks">
+	<div id="pageLinks" class="control-group clearfix">
 	{{if .hasPrevPage}}
-	<a id="prevPage" href="?page={{.prevPage}}">prev</a>
+	<a id="prevPage" class="btn" href="?page={{.prevPage}}">prev</a>
 	{{end}}
 	{{if .hasNextPage}}
-	<a id="nextPage" href="?page={{.nextPage}}">next</a>
+	<a id="nextPage" class="btn" href="?page={{.nextPage}}">next</a>
 	{{end}}
 	</div>
 	<br/>
 	{{range .entries}}
+	<p>
+		<span class="quote_rating">{{.Rating}}</span>
+		<span class="quote_author">{{.Author}}</span>
+		<time class="quote_time">{{.DisplayTime}}</time>
+	</p>
 	<a href="/q/{{.QuoteId}}" class="quote_entry">
 		<div>
-			<p>
-				<span class="quote_rating">{{.Rating}}</span>
-				<time class="quote_time">{{.DisplayTime}}</time>
-			</p>
 			<pre>{{.Clip}}</pre>
 		</div>
 	</a>

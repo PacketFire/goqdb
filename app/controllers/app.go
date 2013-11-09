@@ -75,6 +75,7 @@ func (c App) Post() revel.Result {
 	quote.Created = time.Now().UnixNano()
 	quote.Rating = 0
 
+	c.Params.Bind(&quote.Author, "author")
 	c.Params.Bind(&quote.Quote, "quote")
 	c.Txn.Insert(&quote)
 	return c.Redirect(routes.App.Index("", 0, 0))
