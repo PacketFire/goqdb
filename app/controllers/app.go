@@ -88,5 +88,5 @@ func (c App) One(id int) revel.Result {
 		c.Flash.Error("no such id")
 	}
 	quote := entries[0]
-	return c.Render(quote)
+	return c.RenderText(quote.Quote)
 }
