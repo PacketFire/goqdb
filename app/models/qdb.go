@@ -33,5 +33,5 @@ func (q *QdbEntry) Clip() string {
 
 func (q *QdbEntry) DisplayTime() string {
 	t := time.Unix(0, q.Created)
-	return fmt.Sprintf("%v %v", t.Month().String(), t.Day())
+	return fmt.Sprintf("%v %v", t.Month().String()[:3], t.Day())
 }
