@@ -12,12 +12,6 @@ type App struct {
 	GorpController
 }
 
-/*
-func (c App) Index() revel.Result {
-	return c.Render()
-}
-*/
-
 func (c App) Index(search string, size, page int) revel.Result {
 	if page == 0 {
 		page = 1
