@@ -11,6 +11,15 @@
 	</form>
 
 	{{if .entries}}
+	<div id="pageLinks">
+	{{if .hasPrevPage}}
+	<a id="prevPage" href="?page={{.prevPage}}">prev</a>
+	{{end}}
+	{{if .hasNextPage}}
+	<a id="nextPage" href="?page={{.nextPage}}">next</a>
+	{{end}}
+	</div>
+	<br/>
 	{{range .entries}}
 	<a href="/q/{{.QuoteId}}" class="quote_entry">
 		<div>
@@ -22,15 +31,6 @@
 		</div>
 	</a>
 	{{end}}
-	<br/>
-	<div id="pageLinks">
-	{{if .hasPrevPage}}
-	<a id="prevPage" href="?page={{.prevPage}}">prev</a>
-	{{end}}
-	{{if .hasNextPage}}
-	<a id="nextPage" href="?page={{.nextPage}}">next</a>
-	{{end}}
-	</div>
 	{{else}}
 	<p>No more results</p>
 	{{end}}
