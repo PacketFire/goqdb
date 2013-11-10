@@ -66,6 +66,14 @@ func loadEntries(results []interface{}, err error) []*models.QdbEntry {
 func (c App) Post() revel.Result {
 	var quote models.QdbEntry
 
+	quote.Validate(c.Validation)
+
+	if c.Validation.HasErrors() {
+		c.Validation.Keep()
+		c.FlashParams()
+		return c.Redirect(routes.App.Index("", 0, 0))
+	}
+
 	quote.Created = time.Now().Unix()
 	quote.Rating = 0
 

@@ -4,6 +4,18 @@
 <div id="main">
 	<a href="/"><h3>QDB</h3></a>
 	<br/>
+
+	{{if .errors}}
+	<div>
+		<h4>Error</h4>
+		<ul>
+		{{range .errors}}
+			<li>{{.}}</li>
+		{{end}}
+		</ul>
+	</div>
+	{{end}}
+
 	<form role="form" method="post" action="/">
 		<!--
 		<legend>quote</legend>
