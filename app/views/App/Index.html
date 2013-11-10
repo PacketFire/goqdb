@@ -16,18 +16,7 @@
 	
 	<br/>
 
-	{{if .errors}}
-	<div>
-		<h4>Error</h4>
-		<ul>
-		{{range .errors}}
-			<li>{{.}}</li>
-		{{end}}
-		</ul>
-	</div>
-	{{end}}
-	
-
+	<span class="error-message">{{if .errors}}There were errors in the form submission{{end}}</span>
 	<form role="form" method="post" action="/">
 		<!--
 		<legend>quote</legend>
@@ -37,16 +26,27 @@
 		-->
 
 		<!-- Textarea -->
+		{{with $field := field "q.Quote" .}}
 		<div class="form-group">
-			<textarea class="form-control" id="quote" name="quote" placeholder="quote" required></textarea>
+			{{if $field.Error}}
+			<textarea class="form-control text-field-error" id="quote" name="quote" placeholder="Missing quote" ></textarea>
+			{{else}}
+			<textarea class="form-control" id="quote" name="quote" placeholder="quote" ></textarea>
+			{{end}}
 		</div>
-
+		{{end}}
 		<!-- Text input-->
+		{{with $field := field "q.Author" .}}
 		<div class="form-group row">
 			<div class="col-xs-3">
-				<input class="form-control" id="author" name="author" type="text" placeholder="author" value="anon" required>
+				{{if $field.Error}}
+				<input class="form-control text-field-error" id="author" name="author" type="text" placeholder="Missing author" value="">
+				{{else}}
+				<input class="form-control" id="author" name="author" type="text" placeholder="author" value="anon">
+				{{end}}
 			</div>
 		</div>
+		{{end}}
 
 		<!-- Submit -->
 		<div class="form-group">

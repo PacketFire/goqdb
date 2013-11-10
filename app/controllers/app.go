@@ -72,8 +72,7 @@ func (c App) Post() revel.Result {
 	c.Params.Bind(&quote.Author, "author")
 	c.Params.Bind(&quote.Quote, "quote")
 
-	c.Validation.Required(quote.Author)
-	c.Validation.Required(quote.Quote)
+	quote.Validate(c.Validation)
 
 	if c.Validation.HasErrors() {
 		c.Validation.Keep()

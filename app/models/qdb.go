@@ -2,7 +2,7 @@ package models
 
 import (
 	//        "github.com/coopernurse/gorp"
-	//        "github.com/robfig/revel"
+	        "github.com/robfig/revel"
 	"time"
 	"strings"
 )
@@ -34,3 +34,7 @@ func (q *QdbEntry) Time() string {
 	return time.Unix(q.Created, 0).Format(time.UnixDate)
 }
 
+func (q *QdbEntry) Validate(v *revel.Validation) {
+	v.Required(q.Quote)
+	v.Required(q.Author)
+}
