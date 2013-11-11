@@ -8,7 +8,7 @@
 
 		<form class="form-inline" role="form" method="get" action="">
 			<div class="form-group">
-				<input class="form-control" type="search" id="search" name="search" />
+				<input class="form-control" type="search" id="search" name="search" value="{{.search}}" />
 			</div>
 			<button class="btn btn-primary" type="">search</button>
 		</form>
@@ -57,10 +57,10 @@
 	{{if .entries}}
 	<div id="pageLinks" class="clearfix">
 	{{if .hasPrevPage}}
-	<a id="prevPage" class="btn btn-default" href="?page={{.prevPage}}">prev</a>
+	<a id="prevPage" class="btn btn-default" href="?page={{.prevPage}}{{if .search}}&search={{.search}}{{end}}">prev</a>
 	{{end}}
 	{{if .hasNextPage}}
-	<a id="nextPage" class="btn btn-default" href="?page={{.nextPage}}">next</a>
+	<a id="nextPage" class="btn btn-default" href="?page={{.nextPage}}{{if .search}}&search={{.search}}{{end}}">next</a>
 	{{end}}
 	</div>
 	<br/>
