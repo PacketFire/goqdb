@@ -12,7 +12,14 @@ type App struct {
 	GorpController
 }
 
-func (c App) Index(search string, size, page int) revel.Result {
+func (c App) Index() revel.Result {
+	var search string
+	var size, page int
+
+	c.Params.Bind(&search, "search")
+	c.Params.Bind(&size, "size")
+	c.Params.Bind(&page, "page")
+
 	if page == 0 {
 		page = 1
 	}
@@ -77,10 +84,10 @@ func (c App) Post() revel.Result {
 	if c.Validation.HasErrors() {
 		c.Validation.Keep()
 		c.FlashParams()
-		return c.Redirect(routes.App.Index("", 0, 0))
+		return c.Redirect(routes.App.Index())
 	}
 	c.Txn.Insert(&quote)
-	return c.Redirect(routes.App.Index("", 0, 0))
+	return c.Redirect(routes.App.Index())
 }
 
 func (c App) RatingUp (id int) revel.Result {
@@ -89,7 +96,7 @@ func (c App) RatingUp (id int) revel.Result {
 	if err != nil {
 	}
 
-	return c.Redirect(routes.App.Index("", 0, 0))
+	return c.Redirect(routes.App.Index())
 }
 
 
@@ -99,7 +106,7 @@ func (c App) RatingDown (id int) revel.Result {
 	if err != nil {
 	}
 
-	return c.Redirect(routes.App.Index("", 0, 0))
+	return c.Redirect(routes.App.Index())
 }
 
 func (c App) One(id int) revel.Result {
