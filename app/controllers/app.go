@@ -43,7 +43,7 @@ func (c App) Index() revel.Result {
 	} else {
 		search = strings.ToLower(search)
 		entries = loadEntries(c.Txn.Select(models.QdbEntry{},
-			`SELECT * FROM QdbEntry WHERE LOWER(Quote) LIKE ? ORDER BY QuoteId LIMIT ?, ?`, "%"+search+"%", (page-1)*(size), size))
+			`SELECT * FROM QdbEntry WHERE LOWER(Quote) LIKE ? ORDER BY QuoteId DESC LIMIT ?, ?`, "%"+search+"%", (page-1)*(size), size))
 
 	}
 
