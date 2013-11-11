@@ -54,7 +54,6 @@
 		</div>
 	</form>
 
-	{{if .entries}}
 	<div id="pageLinks" class="clearfix">
 	{{if .hasPrevPage}}
 	<a id="prevPage" class="btn btn-default" href="?page={{.prevPage}}{{if .search}}&search={{.search}}{{end}}">prev</a>
@@ -63,7 +62,10 @@
 	<a id="nextPage" class="btn btn-default" href="?page={{.nextPage}}{{if .search}}&search={{.search}}{{end}}">next</a>
 	{{end}}
 	</div>
-	<br/>
+	
+  <br/>
+	
+  {{if .entries}}
 	{{range .entries}}
 	<p>
 		<a href="/up?id={{.QuoteId}}">+</a>/<a href="/down?id={{.QuoteId}}">-</a>
