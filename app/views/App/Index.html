@@ -67,7 +67,7 @@
 		<div class="fLeft">{{$e.Author}} {{$e.Time}}</div>
 		<div class="fRight">
 			<a class="btn btn-danger btn-xs btn-vote" role="button" href="/down?id={{$e.QuoteId}}{{if $search}}&search={{$search}}{{end}}{{if $page}}&page={{$page}}{{end}}{{if $size}}&size={{$size}}{{end}}">-</a>
-			<span{{$e.Rating}}</span>
+			<span>{{$e.Rating}}</span>
 			<a class="btn btn-success btn-xs btn-vote" role="button" href="/up?id={{$e.QuoteId}}{{if $search}}&search={{$search}}{{end}}{{if $page}}&page={{$page}}{{end}}{{if $size}}&size={{$size}}{{end}}">+</a>
 		</div>
 	</div>
