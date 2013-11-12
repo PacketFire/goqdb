@@ -45,14 +45,9 @@
 	    	<button id="submit" name="submit" type="submit" class="btn btn-primary">submit</button>
 		</div>
 	</form>
-
 	<div id="pageLinks" class="clearfix">
-	{{if .hasPrevPage}}
-	<a class="btn btn-default fLeft" href="?page={{.prevPage}}{{if .search}}&search={{.search}}{{end}}">prev</a>
-	{{end}}
-	{{if .hasNextPage}}
-	<a class="btn btn-default fRight" href="?page={{.nextPage}}{{if .search}}&search={{.search}}{{end}}">next</a>
-	{{end}}
+	<a class="btn btn-default fLeft" {{if eq .hasPrevPage false}}disabled="disabled"{{end}} href="?page={{.prevPage}}{{if .search}}&search={{.search}}{{end}}">prev</a>
+	<a class="btn btn-default fRight" {{if eq .hasNextPage false}}disabled="disabled"{{end}} href="?page={{.nextPage}}{{if .search}}&search={{.search}}{{end}}">next</a>
 	</div>
 	
 	<br/>
