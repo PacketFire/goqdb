@@ -70,14 +70,10 @@ func loadEntries(results []interface{}, err error) []*models.QdbEntry {
 	return entries
 }
 
-func (c App) Post(author, quote string) revel.Result {
-	var entry models.QdbEntry
+func (c App) Post(entry models.QdbEntry) revel.Result {
 
 	entry.Created = time.Now().Unix()
 	entry.Rating = 0
-
-	entry.Quote = quote;
-	entry.Author = author;
 
 	entry.Validate(c.Validation)
 
