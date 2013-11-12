@@ -70,23 +70,23 @@ func loadEntries(results []interface{}, err error) []*models.QdbEntry {
 	return entries
 }
 
-func (c App) Post() revel.Result {
-	var quote models.QdbEntry
+func (c App) Post(author, quote string) revel.Result {
+	var entry models.QdbEntry
 
-	quote.Created = time.Now().Unix()
-	quote.Rating = 0
+	entry.Created = time.Now().Unix()
+	entry.Rating = 0
 
-	c.Params.Bind(&quote.Author, "author")
-	c.Params.Bind(&quote.Quote, "quote")
+	entry.Quote = quote;
+	entry.Author = author;
 
-	quote.Validate(c.Validation)
+	entry.Validate(c.Validation)
 
 	if c.Validation.HasErrors() {
 		c.Validation.Keep()
 		c.FlashParams()
 		return c.Redirect(routes.App.Index())
 	}
-	c.Txn.Insert(&quote)
+	c.Txn.Insert(&entry)
 	return c.Redirect(routes.App.Index())
 }
 

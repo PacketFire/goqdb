@@ -26,24 +26,16 @@
 		-->
 
 		<!-- Textarea -->
-		{{with $field := field "q.Quote" .}}
+		{{with $field := field "quote" .}}
 		<div class="form-group">
-			{{if $field.Error}}
-			<textarea class="form-control text-field-error" id="quote" name="quote" placeholder="Missing quote" ></textarea>
-			{{else}}
-			<textarea class="form-control" id="quote" name="quote" placeholder="quote" ></textarea>
-			{{end}}
+			<textarea class="form-control {{$field.ErrorClass}}" id="quote" name="quote" placeholder="quote">{{$field.Flash}}</textarea>
 		</div>
 		{{end}}
 		<!-- Text input-->
-		{{with $field := field "q.Author" .}}
+		{{with $field := field "author" .}}
 		<div class="form-group row">
 			<div class="col-xs-3">
-				{{if $field.Error}}
-				<input class="form-control text-field-error" id="author" name="author" type="text" placeholder="Missing author" value="">
-				{{else}}
-				<input class="form-control" id="author" name="author" type="text" placeholder="author" value="anon">
-				{{end}}
+				<input class="form-control {{$field.ErrorClass}}" id="author" name="author" type="text" placeholder="author" value="{{$field.Flash}}">
 			</div>
 		</div>
 		{{end}}
