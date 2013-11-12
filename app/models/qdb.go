@@ -5,6 +5,7 @@ import (
 	        "github.com/robfig/revel"
 	"time"
 	"strings"
+	"strconv"
 )
 
 type QdbEntry struct {
@@ -38,3 +39,28 @@ func (q *QdbEntry) Validate(v *revel.Validation) {
 	v.Required(q.Quote)
 	v.Required(q.Author)
 }
+
+type PageState struct {
+	Search string
+	Page int
+	Size int
+}
+
+func (s *PageState) String () string {
+	out := ""
+
+	if s.Search != "" {
+		out += "&search=" + s.Search
+	}
+
+	if s.Page != 0 {
+		out += "&page=" + strconv.Itoa(s.Page)
+	}
+
+	if s.Size != 0 {
+		out += "&size=" + strconv.Itoa(s.Size)
+	}
+
+	return out
+}
+
