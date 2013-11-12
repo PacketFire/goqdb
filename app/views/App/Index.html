@@ -65,15 +65,20 @@
 	
   <br/>
 	
-  {{if .entries}}
-	{{range .entries}}
+  {{$search := .search}}
+  {{$page := .page}}
+  {{$size := .size}}
+
+  {{with $entries := .entries}}
+	{{range $e := $entries}}
 	<p>
-		<a href="/up?id={{.QuoteId}}">+</a>/<a href="/down?id={{.QuoteId}}">-</a>
-		<span>{{.Rating}}</span>
-		<span>{{.Author}}</span>
-		<span>{{.Time}}</span>
+    <a href="/up?id={{$e.QuoteId}}{{if $search}}&search={{$search}}{{end}}{{if $page}}&page={{$page}}{{end}}{{if $size}}&size={{$size}}{{end}}">+</a>/
+    <a href="/down?id={{$e.QuoteId}}{{if $search}}&search={{$search}}{{end}}{{if $page}}&page={{$page}}{{end}}{{if $size}}&size={{$size}}{{end}}">-</a>
+		<span>{{$e.Rating}}</span>
+		<span>{{$e.Author}}</span>
+		<span>{{$e.Time}}</span>
 	</p>
-	<a href="/q/{{.QuoteId}}" class="quote_entry">
+	<a href="/q/{{$e.QuoteId}}" class="quote_entry">
 		<div>
 			<pre>{{.Clip}}</pre>
 		</div>
