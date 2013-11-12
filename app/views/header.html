@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 
 <html>
-  <head>
-    <title>{{.title}}</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="shortcut icon" type="image/png" href="/public/img/favicon.png">
-    <script src="/public/js/jquery-1.9.1.min.js" type="text/javascript" charset="utf-8"></script>
-    {{range .moreStyles}}
-      <link rel="stylesheet" type="text/css" href="/public/{{.}}">
-    {{end}}
-    {{range .moreScripts}}
-      <script src="/public/{{.}}" type="text/javascript" charset="utf-8"></script>
-    {{end}}
+	<head>
+	<title>{{.title}}</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="shortcut icon" type="image/png" href="/public/img/favicon.png">
+	<script src="/public/js/jquery-1.9.1.min.js" type="text/javascript" charset="utf-8"></script>
+	{{range .moreStyles}}
+	<link rel="stylesheet" type="text/css" href="/public/{{.}}">
+	{{end}}
+	{{range .moreScripts}}
+	<script src="/public/{{.}}" type="text/javascript" charset="utf-8"></script>
+	{{end}}
 	<style type="text/css">
 	#main {
 		width: 50%;
@@ -25,14 +25,36 @@
 
 	}
 
-	#nextPage {
+	.fRight {
 		float: right;
 	}
 
-	#prevPage {
+	.fLeft {
 		float: left;
 	}
 
+	.quote_entry:hover {
+		text-decoration: none;
+	}
+
+	.quote_entry {
+		font-size: 13px;
+		line-height: 20px;
+		display: block;
+		padding: 8px 0;
+	}
+
+	.quote_entry .quote_time {
+		font-size: 0.875em;
+	}
+
+	.quote_entry .quote_rating {
+	}
+
+	.btn-vote {
+		font-family: "Lucida Console", Monaco, monospace;
+	}
+
 	</style>
-  </head>
-  <body>
+</head>
+<body>

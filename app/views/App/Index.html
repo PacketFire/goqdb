@@ -48,29 +48,30 @@
 
 	<div id="pageLinks" class="clearfix">
 	{{if .hasPrevPage}}
-	<a id="prevPage" class="btn btn-default" href="?page={{.prevPage}}{{if .search}}&search={{.search}}{{end}}">prev</a>
+	<a class="btn btn-default fLeft" href="?page={{.prevPage}}{{if .search}}&search={{.search}}{{end}}">prev</a>
 	{{end}}
 	{{if .hasNextPage}}
-	<a id="nextPage" class="btn btn-default" href="?page={{.nextPage}}{{if .search}}&search={{.search}}{{end}}">next</a>
+	<a class="btn btn-default fRight" href="?page={{.nextPage}}{{if .search}}&search={{.search}}{{end}}">next</a>
 	{{end}}
 	</div>
 	
-  <br/>
+	<br/>
 	
-  {{$search := .search}}
-  {{$page := .page}}
-  {{$size := .size}}
+	{{$search := .search}}
+	{{$page := .page}}
+	{{$size := .size}}
 
-  {{with $entries := .entries}}
+	{{with $entries := .entries}}
 	{{range $e := $entries}}
-	<p>
-    <a href="/up?id={{$e.QuoteId}}{{if $search}}&search={{$search}}{{end}}{{if $page}}&page={{$page}}{{end}}{{if $size}}&size={{$size}}{{end}}">+</a>/
-    <a href="/down?id={{$e.QuoteId}}{{if $search}}&search={{$search}}{{end}}{{if $page}}&page={{$page}}{{end}}{{if $size}}&size={{$size}}{{end}}">-</a>
-		<span>{{$e.Rating}}</span>
-		<span>{{$e.Author}}</span>
-		<span>{{$e.Time}}</span>
-	</p>
-	<a href="/q/{{$e.QuoteId}}" class="quote_entry">
+	<div class="clearfix">
+		<div class="fLeft">{{$e.Author}} {{$e.Time}}</div>
+		<div class="fRight">
+			<a class="btn btn-danger btn-xs btn-vote" role="button" href="/down?id={{$e.QuoteId}}{{if $search}}&search={{$search}}{{end}}{{if $page}}&page={{$page}}{{end}}{{if $size}}&size={{$size}}{{end}}">-</a>
+			<span{{$e.Rating}}</span>
+			<a class="btn btn-success btn-xs btn-vote" role="button" href="/up?id={{$e.QuoteId}}{{if $search}}&search={{$search}}{{end}}{{if $page}}&page={{$page}}{{end}}{{if $size}}&size={{$size}}{{end}}">+</a>
+		</div>
+	</div>
+	<a style="display:block" href="/q/{{$e.QuoteId}}" class="quote_entry">
 		<div>
 			<pre>{{.Clip}}</pre>
 		</div>
