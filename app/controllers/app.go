@@ -86,7 +86,7 @@ func (c App) Post(entry models.QdbEntry) revel.Result {
 	return c.Redirect(routes.App.Index())
 }
 
-func (c App) RatingUp (id int) revel.Result {
+func (c App) RatingUp(id int) revel.Result {
 	_, err := c.Txn.Exec("UPDATE QdbEntry SET Rating = Rating + 1 WHERE QuoteId = ?", id)
 
 	if err != nil {
@@ -95,8 +95,7 @@ func (c App) RatingUp (id int) revel.Result {
 	return c.Redirect(routes.App.Index())
 }
 
-
-func (c App) RatingDown (id int) revel.Result {
+func (c App) RatingDown(id int) revel.Result {
 	_, err := c.Txn.Exec("UPDATE QdbEntry SET Rating = Rating - 1 WHERE QuoteId = ?", id)
 
 	if err != nil {

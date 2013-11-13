@@ -2,10 +2,10 @@ package models
 
 import (
 	//        "github.com/coopernurse/gorp"
-	        "github.com/robfig/revel"
-	"time"
-	"strings"
+	"github.com/robfig/revel"
 	"strconv"
+	"strings"
+	"time"
 )
 
 type QdbEntry struct {
@@ -13,7 +13,7 @@ type QdbEntry struct {
 	Quote   string
 	Created int64
 	Rating  int
-	Author string
+	Author  string
 	//Tags string
 }
 
@@ -42,11 +42,11 @@ func (q *QdbEntry) Validate(v *revel.Validation) {
 
 type PageState struct {
 	Search string
-	Page int
-	Size int
+	Page   int
+	Size   int
 }
 
-func (s *PageState) String () string {
+func (s *PageState) String() string {
 	out := ""
 
 	if s.Search != "" {
@@ -63,4 +63,3 @@ func (s *PageState) String () string {
 
 	return out
 }
-
