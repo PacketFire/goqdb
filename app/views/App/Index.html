@@ -32,13 +32,12 @@
 		</div>
 		{{end}}
 		<!-- Text input-->
-		{{with $field := field "entry.Author" .}}
+		<!-- XXX: use field? -->
 		<div class="form-group row">
 			<div class="col-xs-3">
-				<input class="form-control {{$field.ErrorClass}}" id="author" name="entry.Author" type="text" placeholder="author" value="{{$field.Flash}}">
+				<input class="form-control" id="author" name="entry.Author" type="text" placeholder="author" value="{{.savedAuthor}}">
 			</div>
 		</div>
-		{{end}}
 
 		<!-- Submit -->
 		<div class="form-group">

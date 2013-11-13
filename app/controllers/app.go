@@ -16,6 +16,12 @@ func (c App) Index() revel.Result {
 	var search string
 	var size, page int
 
+	var savedAuthor string
+
+	if author, ok := c.Session["author"]; ok {
+		savedAuthor = author
+	}
+
 	c.Params.Bind(&search, "search")
 	c.Params.Bind(&size, "size")
 	c.Params.Bind(&page, "page")
@@ -53,7 +59,7 @@ func (c App) Index() revel.Result {
 		entries = entries[:len(entries)-1]
 	}
 
-	return c.Render(entries, search, size, page, hasPrevPage, prevPage, hasNextPage, nextPage)
+	return c.Render(entries, savedAuthor, search, size, page, hasPrevPage, prevPage, hasNextPage, nextPage)
 }
 
 func loadEntries(results []interface{}, err error) []*models.QdbEntry {
@@ -74,6 +80,8 @@ func (c App) Post(entry models.QdbEntry) revel.Result {
 
 	entry.Created = time.Now().Unix()
 	entry.Rating = 0
+
+	c.Session["author"] = entry.Author
 
 	entry.Validate(c.Validation)
 
