@@ -57,6 +57,8 @@
 
 	{{with $entries := .entries}}
 	{{range $e := $entries}}
+
+	<!-- author, time, rating buttons -->
 	<div class="clearfix">
 		<div class="fLeft">{{$e.Author}} {{$e.Time}}</div>
 		<div class="fRight">
@@ -65,11 +67,10 @@
 			<a class="btn btn-success btn-xs btn-vote" role="button" href="/up?id={{$e.QuoteId}}{{if $search}}&search={{$search}}{{end}}{{if $page}}&page={{$page}}{{end}}{{if $size}}&size={{$size}}{{end}}">+</a>
 		</div>
 	</div>
-	<a style="display:block" href="/q/{{$e.QuoteId}}" class="quote_entry">
-		<div>
-			<pre>{{.Clip}}</pre>
-		</div>
-	</a>
+
+	<!-- The actual quote -->
+	<pre class="quote_entry"><a href="/q/{{$e.QuoteId}}">{{.Clip}}</a></pre>
+
 	{{end}}
 	{{else}}
 	<p>No more results</p>
