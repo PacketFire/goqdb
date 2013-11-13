@@ -14,49 +14,41 @@ type App struct {
 
 func (c App) Index(page models.PageState) revel.Result {
 
-	/*var search string
-	var size, page int
-	*/
-
 	var savedAuthor string
 
 	if author, ok := c.Session["author"]; ok {
 		savedAuthor = author
 	}
 
-/*
-	c.Params.Bind(&search, "search")
-	c.Params.Bind(&size, "size")
-	c.Params.Bind(&page, "page")
-*/
 	if page.Page == 0 {
 		page.Page = 1
 	}
 
-	if page.Size <= 0 {
-		page.Size = 5
+	size := page.Size
+	if size <= 0 {
+		size = 5
 	}
 
 	// for pagination
 	nextPage := page.Page + 1
 	prevPage := page.Page - 1
 
-	search := strings.TrimSpace(page.Search)
+	page.Search = strings.TrimSpace(page.Search)
 
 	var entries []*models.QdbEntry
 
-	if search == "" {
+	if page.Search == "" {
 		entries = loadEntries(c.Txn.Select(models.QdbEntry{},
-			`SELECT * FROM QdbEntry ORDER BY QuoteId DESC LIMIT ?, ?`, (page.Page-1)*(page.Size-1), page.Size))
+			`SELECT * FROM QdbEntry ORDER BY QuoteId DESC LIMIT ?, ?`, (page.Page-1)*(size-1), size))
 	} else {
-		search = strings.ToLower(search)
+		page.Search = strings.ToLower(page.Search)
 		entries = loadEntries(c.Txn.Select(models.QdbEntry{},
-			`SELECT * FROM QdbEntry WHERE LOWER(Quote) LIKE ? ORDER BY QuoteId DESC LIMIT ?, ?`, "%"+search+"%", (page.Page-1)*(page.Size), page.Size))
+			`SELECT * FROM QdbEntry WHERE LOWER(Quote) LIKE ? ORDER BY QuoteId DESC LIMIT ?, ?`, "%"+page.Search+"%", (page.Page-1)*(size), size))
 
 	}
 
 	hasPrevPage := page.Page > 1
-	hasNextPage := len(entries) == page.Size
+	hasNextPage := len(entries) == size
 	if hasNextPage {
 		entries = entries[:len(entries)-1]
 	}
