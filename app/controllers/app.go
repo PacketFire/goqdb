@@ -38,7 +38,6 @@ func (c App) Index(page models.PageState) revel.Result {
 	}
 
 	// for pagination
-	page.Size += 1
 	nextPage := page.Page + 1
 	prevPage := page.Page - 1
 
