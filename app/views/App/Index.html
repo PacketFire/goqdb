@@ -8,7 +8,7 @@
 
 		<form class="form-inline" role="form" method="get" action="">
 			<div class="form-group">
-				<input class="form-control" type="search" id="search" name="search" value="{{.search}}" />
+				<input class="form-control" type="search" id="search" name="page.Search" value="{{.page.Search}}" />
 			</div>
 			<button class="btn btn-primary" type="">search</button>
 		</form>
@@ -45,8 +45,20 @@
 		</div>
 	</form>
 	<div id="pageLinks" class="clearfix">
-    <a class="btn btn-default fLeft" {{if eq .hasPrevPage false}}disabled="disabled"{{end}} href="?page.Page={{.prevPage}}{{if .page.Search}}&page.Search={{.page.Search}}{{end}}">prev</a>
-    <a class="btn btn-default fRight" {{if eq .hasNextPage false}}disabled="disabled"{{end}} href="?page.Page={{.nextPage}}{{if .page.Search}}&page.Search={{.page.Search}}{{end}}">next</a>
+		<a class="btn btn-default fLeft" {{if eq .hasPrevPage false}}disabled="disabled"{{end}} 
+			href="?page.Page={{.prevPage}}
+				{{if neq .page.Search ""}}&page.Search={{.page.Search}}{{end}}
+				{{if neq .page.Size 0}}&page.Size={{.page.Size}}{{end}}"
+		>
+			prev
+		</a>
+		<a class="btn btn-default fRight" {{if eq .hasNextPage false}}disabled="disabled"{{end}} 
+			href="?page.Page={{.nextPage}}
+				{{if neq .page.Search ""}}&page.Search={{.page.Search}}{{end}}
+				{{if neq .page.Size 0}}&page.Size={{.page.Size}}{{end}}"
+		>
+			next
+		</a>
 	</div>
 	
 	<br/>
