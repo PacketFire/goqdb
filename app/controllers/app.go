@@ -119,6 +119,8 @@ func (c App) One(id int) revel.Result {
 	if len(entries) == 0 {
 		c.Flash.Error("no such id")
 	}
+
 	quote := entries[0]
-	return c.RenderText(quote.Quote)
+
+	return Utf8Result(quote.Quote)
 }
