@@ -45,15 +45,13 @@
 		</div>
 	</form>
 	<div id="pageLinks" class="clearfix">
-    <a class="btn btn-default fLeft" {{if eq .hasPrevPage false}}disabled="disabled"{{end}} href="?page={{.prevPage}}{{if .search}}&search={{.search}}{{end}}">prev</a>
-    <a class="btn btn-default fRight" {{if eq .hasNextPage false}}disabled="disabled"{{end}} href="?page={{.nextPage}}{{if .search}}&search={{.search}}{{end}}">next</a>
+    <a class="btn btn-default fLeft" {{if eq .hasPrevPage false}}disabled="disabled"{{end}} href="?page.Page={{.prevPage}}{{if .page.Search}}&page.Search={{.page.Search}}{{end}}">prev</a>
+    <a class="btn btn-default fRight" {{if eq .hasNextPage false}}disabled="disabled"{{end}} href="?page.Page={{.nextPage}}{{if .page.Search}}&page.Search={{.page.Search}}{{end}}">next</a>
 	</div>
 	
 	<br/>
 	
-	{{$search := .search}}
 	{{$page := .page}}
-	{{$size := .size}}
 
 	{{with $entries := .entries}}
 	{{range $e := $entries}}
@@ -62,14 +60,22 @@
 	<div class="clearfix">
 		<div class="fLeft">{{$e.Author}} {{$e.Time}}</div>
 		<div class="fRight">
-			<a class="btn btn-danger btn-xs btn-vote" role="button" href="/down?id={{$e.QuoteId}}{{if $search}}&search={{$search}}{{end}}{{if $page}}&page={{$page}}{{end}}{{if $size}}&size={{$size}}{{end}}">-</a>
+			<a class="btn btn-danger btn-xs btn-vote" role="button" href="/down?id={{$e.QuoteId}}
+				{{if neq $page.Search ""}}&page.Search={{$page.Search}}{{end}}
+				{{if neq $page.Page 0}}&page.Page={{$page.Page}}{{end}}
+				{{if neq $page.Size 0}}&page.Size={{$page.Size}}{{end}}
+			">-</a>
 			<span>{{$e.Rating}}</span>
-			<a class="btn btn-success btn-xs btn-vote" role="button" href="/up?id={{$e.QuoteId}}{{if $search}}&search={{$search}}{{end}}{{if $page}}&page={{$page}}{{end}}{{if $size}}&size={{$size}}{{end}}">+</a>
+			<a class="btn btn-success btn-xs btn-vote" role="button" href="/up?id={{$e.QuoteId}}
+				{{if neq $page.Search ""}}&page.Search={{$page.Search}}{{end}}
+				{{if neq $page.Page 0}}&page.Page={{$page.Page}}{{end}}
+				{{if neq $page.Size 0}}&page.Size={{$page.Size}}{{end}}
+			">+</a>
 		</div>
 	</div>
 
 	<!-- The actual quote -->
-	<pre class="quote_entry"><a href="/q/{{$e.QuoteId}}">{{.Clip}}</a></pre>
+	<pre class="quote_entry"><a href="/q/{{$e.QuoteId}}">{{$e.Clip}}</a></pre>
 
 	{{end}}
 	{{else}}

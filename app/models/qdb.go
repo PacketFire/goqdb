@@ -46,19 +46,19 @@ type PageState struct {
 	Size   int
 }
 
-func (s *PageState) String() string {
+func (s *PageState) String () string {
 	out := ""
 
 	if s.Search != "" {
-		out += "&search=" + s.Search
+		out += "&page.Search=" + s.Search
 	}
 
 	if s.Page != 0 {
-		out += "&page=" + strconv.Itoa(s.Page)
+		out += "&page.Page=" + strconv.Itoa(s.Page)
 	}
 
 	if s.Size != 0 {
-		out += "&size=" + strconv.Itoa(s.Size)
+		out += "&page.Size=" + strconv.Itoa(s.Size)
 	}
 
 	return out
