@@ -27,3 +27,7 @@ app/routes/*
 
 # sqlite db
 *.db
+
+# vim swap files
+*.swp
+*.swo
