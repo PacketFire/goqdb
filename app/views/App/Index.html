@@ -33,11 +33,14 @@
 		{{end}}
 		<!-- Text input-->
 		<!-- XXX: use field? -->
+		{{$savedAuthor := .savedAuthor}}
+		{{with $field := field "entry.Author" .}}
 		<div class="form-group row">
 			<div class="col-xs-3">
-				<input class="form-control" id="author" name="entry.Author" type="text" placeholder="author" value="{{.savedAuthor}}">
+				<input class="form-control {{$field.ErrorClass}}" id="author" name="entry.Author" type="text" placeholder="author" value="{{$savedAuthor}}">
 			</div>
 		</div>
+		{{end}}
 
 		<!-- Submit -->
 		<div class="form-group">
@@ -47,15 +50,15 @@
 	<div id="pageLinks" class="clearfix">
 		<a class="btn btn-default fLeft" {{if eq .hasPrevPage false}}disabled="disabled"{{end}} 
 			href="?page.Page={{.prevPage}}
-				{{if neq .page.Search ""}}&page.Search={{.page.Search}}{{end}}
-				{{if neq .page.Size 0}}&page.Size={{.page.Size}}{{end}}"
+				{{if .page.Search}}&page.Search={{.page.Search}}{{end}}
+				{{if .page.Size}}&page.Size={{.page.Size}}{{end}}"
 		>
 			prev
 		</a>
 		<a class="btn btn-default fRight" {{if eq .hasNextPage false}}disabled="disabled"{{end}} 
 			href="?page.Page={{.nextPage}}
-				{{if neq .page.Search ""}}&page.Search={{.page.Search}}{{end}}
-				{{if neq .page.Size 0}}&page.Size={{.page.Size}}{{end}}"
+				{{if .page.Search}}&page.Search={{.page.Search}}{{end}}
+				{{if .page.Size}}&page.Size={{.page.Size}}{{end}}"
 		>
 			next
 		</a>
@@ -67,21 +70,20 @@
 
 	{{with $entries := .entries}}
 	{{range $e := $entries}}
-
 	<!-- author, time, rating buttons -->
 	<div class="clearfix">
 		<div class="fLeft">{{$e.Author}} {{$e.Time}}</div>
 		<div class="fRight">
 			<a class="btn btn-danger btn-xs btn-vote" role="button" href="/down?id={{$e.QuoteId}}
-				{{if neq $page.Search ""}}&page.Search={{$page.Search}}{{end}}
-				{{if neq $page.Page 0}}&page.Page={{$page.Page}}{{end}}
-				{{if neq $page.Size 0}}&page.Size={{$page.Size}}{{end}}
+				{{if $page.Search}}&page.Search={{$page.Search}}{{end}}
+				{{if $page.Page}}&page.Page={{$page.Page}}{{end}}
+				{{if $page.Size}}&page.Size={{$page.Size}}{{end}}
 			">-</a>
 			<span>{{$e.Rating}}</span>
 			<a class="btn btn-success btn-xs btn-vote" role="button" href="/up?id={{$e.QuoteId}}
-				{{if neq $page.Search ""}}&page.Search={{$page.Search}}{{end}}
-				{{if neq $page.Page 0}}&page.Page={{$page.Page}}{{end}}
-				{{if neq $page.Size 0}}&page.Size={{$page.Size}}{{end}}
+				{{if $page.Search}}&page.Search={{$page.Search}}{{end}}
+				{{if $page.Page}}&page.Page={{$page.Page}}{{end}}
+				{{if $page.Size}}&page.Size={{$page.Size}}{{end}}
 			">+</a>
 		</div>
 	</div>

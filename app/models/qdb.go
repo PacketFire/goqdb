@@ -2,8 +2,7 @@ package models
 
 import (
 	//        "github.com/coopernurse/gorp"
-	"github.com/robfig/revel"
-	"strconv"
+	//	"github.com/robfig/revel"
 	"strings"
 	"time"
 )
@@ -35,31 +34,9 @@ func (q *QdbEntry) Time() string {
 	return time.Unix(q.Created, 0).Format(time.UnixDate)
 }
 
-func (q *QdbEntry) Validate(v *revel.Validation) {
-	v.Required(q.Quote)
-	v.Required(q.Author)
-}
-
 type PageState struct {
 	Search string
 	Page   int
 	Size   int
 }
 
-func (s *PageState) String () string {
-	out := ""
-
-	if s.Search != "" {
-		out += "&page.Search=" + s.Search
-	}
-
-	if s.Page != 0 {
-		out += "&page.Page=" + strconv.Itoa(s.Page)
-	}
-
-	if s.Size != 0 {
-		out += "&page.Size=" + strconv.Itoa(s.Size)
-	}
-
-	return out
-}

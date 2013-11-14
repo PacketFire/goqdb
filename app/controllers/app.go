@@ -77,7 +77,8 @@ func (c App) Post(entry models.QdbEntry, page models.PageState) revel.Result {
 
 	c.Session["author"] = entry.Author
 
-	entry.Validate(c.Validation)
+	c.Validation.Required(entry.Quote)
+	c.Validation.Required(entry.Author)
 
 	if c.Validation.HasErrors() {
 		c.Validation.Keep()
