@@ -69,6 +69,7 @@
 	{{range $e := $entries}}
 
 	<!-- author, time, rating buttons -->
+	<a id="q{{$e.QuoteId}}"></a>
 	<div class="clearfix">
 		<div class="fLeft">{{$e.Author}} {{$e.Time}}</div>
 		<div class="fRight">
@@ -76,12 +77,14 @@
 				{{if neq $page.Search ""}}&page.Search={{$page.Search}}{{end}}
 				{{if neq $page.Page 0}}&page.Page={{$page.Page}}{{end}}
 				{{if neq $page.Size 0}}&page.Size={{$page.Size}}{{end}}
+				#{{$e.QuoteId}}	
 			">-</a>
 			<span>{{$e.Rating}}</span>
 			<a class="btn btn-success btn-xs btn-vote" role="button" href="/up?id={{$e.QuoteId}}
 				{{if neq $page.Search ""}}&page.Search={{$page.Search}}{{end}}
 				{{if neq $page.Page 0}}&page.Page={{$page.Page}}{{end}}
 				{{if neq $page.Size 0}}&page.Size={{$page.Size}}{{end}}
+				#q{{$e.QuoteId}}	
 			">+</a>
 		</div>
 	</div>
