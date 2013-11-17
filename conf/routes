@@ -8,14 +8,27 @@ GET     /                                       App.Index
 POST    /                                       App.Post
 GET	/q/:id					App.One
 
+GET     /down                                   App.RatingDown
+GET     /up                                     App.RatingUp
+
 # Ignore favicon requests
 GET     /favicon.ico                            404
 
 # Map static resources from the /app/public folder to the /public path
 GET     /public/*filepath                       Static.Serve("public")
 
-GET     /down                                   App.RatingDown
-GET     /up                                     App.RatingUp
+# API things ###
+#
+GET	/api/v0					Api.Index
+GET	/api/v0/:id				Api.One
+
+POST	/api/v0					Api.Post
+
+# upvote
+PUT	/api/v0/:id/rating			Api.RatingUp
+# downvote
+DELETE	/api/v0/:id/rating			Api.RatingDown
 
 # Catch all
 *       /:controller/:action                    :controller.:action
+
