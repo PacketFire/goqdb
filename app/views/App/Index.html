@@ -4,27 +4,13 @@
 <div id="main">
 	<header>
 
-		<a href="/"><h3>QDB</h3></a>
+		<a href="/"><h1 class="h3">QDB</h1></a>
 
-		<form class="form-inline" role="form" method="get" action="">
-			<div class="form-group">
-				<input class="form-control" type="search" id="search" name="page.Search" value="{{.page.Search}}" />
-			</div>
-			<button class="btn btn-primary" type="">search</button>
-		</form>
 	</header>
 	
 	<br/>
 
-	<!--<span class="error-message">{{if .errors}}There were errors in the form submission{{end}}</span>-->
 	<form role="form" method="post" action="/">
-		<!--
-		<legend>quote</legend>
-		<textarea name="quote" rows="5"></textarea>
-		<br/>
-		<input class="btn btn-primary" type="submit" name="submit" value="submit"/>
-		-->
-
 		<!-- Textarea -->
 		{{with $field := field "entry.Quote" .}}
 		<div class="form-group">
@@ -44,9 +30,19 @@
 
 		<!-- Submit -->
 		<div class="form-group">
-	    	<button id="submit" name="submit" type="submit" class="btn btn-primary">submit</button>
+			<button id="submit" name="submit" type="submit" class="btn btn-primary">submit</button>
 		</div>
 	</form>
+
+	<form class="form-inline" role="form" method="get" action="">
+		<div class="form-group">
+			<input class="form-control" type="search" id="search" name="page.Search" value="{{.page.Search}}" />
+		</div>
+		<button class="btn btn-primary" type=""><span class="glyphicon glyphicon-search"></span></button>
+	</form>
+
+	<br/>
+
 	<div id="pageLinks" class="clearfix">
 		<a class="btn btn-default fLeft" {{if eq .hasPrevPage false}}disabled="disabled"{{end}} 
 			href="?page.Page={{.prevPage}}
