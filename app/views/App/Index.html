@@ -11,17 +11,17 @@
 	<form role="form" method="post" action="/">
 		<!-- Textarea -->
 		{{with $field := field "entry.Quote" .}}
-		<div class="form-group">
-			<textarea class="form-control {{$field.ErrorClass}}" id="quote" name="entry.Quote" placeholder="quote">{{$field.Flash}}</textarea>
+		<div class="form-group {{$field.ErrorClass}}">
+			<textarea class="form-control" id="quote" name="entry.Quote" placeholder="quote">{{$field.Flash}}</textarea>
 		</div>
 		{{end}}
 		<!-- Text input-->
 		<!-- XXX: use field? -->
 		{{$savedAuthor := .savedAuthor}}
 		{{with $field := field "entry.Author" .}}
-		<div class="form-group row">
+		<div class="form-group row {{$field.ErrorClass}}">
 			<div class="col-xs-3">
-				<input class="form-control {{$field.ErrorClass}}" id="author" name="entry.Author" type="text" placeholder="author" value="{{$savedAuthor}}">
+				<input class="form-control" id="author" name="entry.Author" type="text" placeholder="author" value="{{$savedAuthor}}">
 			</div>
 		</div>
 		{{end}}
