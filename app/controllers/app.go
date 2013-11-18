@@ -56,20 +56,6 @@ func (c App) Index(page models.PageState) revel.Result {
 	return c.Render(entries, savedAuthor, page, hasPrevPage, prevPage, hasNextPage, nextPage)
 }
 
-func loadEntries(results []interface{}, err error) []*models.QdbEntry {
-	if err != nil {
-		panic(err)
-	}
-
-	var entries []*models.QdbEntry
-
-	for _, r := range results {
-		entries = append(entries, r.(*models.QdbEntry))
-	}
-
-	return entries
-}
-
 func (c App) Post(entry models.QdbEntry, page models.PageState) revel.Result {
 
 	entry.Created = time.Now().Unix()
