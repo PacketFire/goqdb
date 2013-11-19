@@ -1,18 +1,19 @@
 package controllers
 
 import (
-	"github.com/PacketFire/goqdb/app/models"
-	"github.com/PacketFire/goqdb/app/routes"
 	"github.com/robfig/revel"
+	"github.com/PacketFire/goqdb/app/routes"
+	"github.com/PacketFire/goqdb/app/models"
+	"fmt"
 	"strings"
-	"time"
+	"net/http"
 )
 
 type App struct {
-	GorpController
+	Core
 }
 
-func (c App) Index(page models.PageState) revel.Result {
+func (c *App) Index (page models.PageState) revel.Result {
 
 	var savedAuthor string
 
@@ -24,44 +25,25 @@ func (c App) Index(page models.PageState) revel.Result {
 		page.Page = 1
 	}
 
-	size := page.Size
-	if size <= 0 {
-		size = 5
+	page.Search = strings.TrimSpace(page.Search)
+
+	entries, err := c.getEntries(page.Page, page.Size, page.Search)
+
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
 	}
 
-	// for pagination
 	nextPage := page.Page + 1
 	prevPage := page.Page - 1
 
-	page.Search = strings.TrimSpace(page.Search)
-
-	var entries []*models.QdbEntry
-
-	if page.Search == "" {
-		entries = loadEntries(c.Txn.Select(models.QdbEntry{},
-			`SELECT * FROM QdbEntry ORDER BY QuoteId DESC LIMIT ?, ?`, (page.Page-1)*(size-1), size))
-	} else {
-		page.Search = strings.ToLower(page.Search)
-		entries = loadEntries(c.Txn.Select(models.QdbEntry{},
-			`SELECT * FROM QdbEntry WHERE LOWER(Quote) LIKE ? ORDER BY QuoteId DESC LIMIT ?, ?`, "%"+page.Search+"%", (page.Page-1)*(size), size))
-
-	}
 
 	hasPrevPage := page.Page > 1
-	hasNextPage := len(entries) == size
-	if hasNextPage {
-		entries = entries[:len(entries)-1]
-	}
+	hasNextPage := len(entries) == page.Size
 
 	return c.Render(entries, savedAuthor, page, hasPrevPage, prevPage, hasNextPage, nextPage)
 }
 
-func (c App) Post(entry models.QdbEntry, page models.PageState) revel.Result {
-
-	entry.Created = time.Now().Unix()
-	entry.Rating = 0
-
-	c.Session["author"] = entry.Author
+func (c *App) Post (entry models.QdbEntry, page models.PageState) revel.Result {
 
 	c.Validation.Required(entry.Quote)
 	c.Validation.Required(entry.Author)
@@ -70,38 +52,53 @@ func (c App) Post(entry models.QdbEntry, page models.PageState) revel.Result {
 		c.Validation.Keep()
 		c.FlashParams()
 		return c.Redirect(routes.App.Index(page))
+	} else {
+
+		err := c.insertEntry(entry)
+
+		if err != nil {
+			c.Response.Status = http.StatusInternalServerError
+		}
 	}
-	c.Txn.Insert(&entry)
+
 	return c.Redirect(routes.App.Index(page))
 }
 
-func (c App) RatingUp(id int, page models.PageState) revel.Result {
-	_, err := c.Txn.Exec("UPDATE QdbEntry SET Rating = Rating + 1 WHERE QuoteId = ?", id)
+func (c *App) One (id int) revel.Result {
+
+	var quote string
+	entries, err := c.getEntryById(id);
 
 	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+	} else {
+		if len(entries) == 0 {
+			c.Flash.Error(fmt.Sprintf("No such id: %d", id))
+		} else {
+			quote = entries[0].Quote
+		}
 	}
 
-	return c.Redirect(routes.App.Index(page))
+	return Utf8Result(quote)
 }
 
-func (c App) RatingDown(id int, page models.PageState) revel.Result {
-	_, err := c.Txn.Exec("UPDATE QdbEntry SET Rating = Rating - 1 WHERE QuoteId = ?", id)
+func (c *App) UpVote (id int, page models.PageState) revel.Result {
 
+	_, err := c.upVote(id)
 	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
 	}
 
 	return c.Redirect(routes.App.Index(page))
 }
 
-func (c App) One(id int) revel.Result {
-	var entries []*models.QdbEntry
-	entries = loadEntries(c.Txn.Select(models.QdbEntry{},
-		`SELECT * FROM QdbEntry WHERE QuoteId = ? ORDER BY QuoteId DESC LIMIT 1`, id))
-	if len(entries) == 0 {
-		c.Flash.Error("no such id")
+func (c *App) DownVote (id int, page models.PageState) revel.Result {
+
+	_, err := c.downVote(id)
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
 	}
 
-	quote := entries[0]
-
-	return Utf8Result(quote.Quote)
+	return c.Redirect(routes.App.Index(page))
 }
+

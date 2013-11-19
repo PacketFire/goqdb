@@ -69,14 +69,14 @@
 	<div class="clearfix">
 		<div class="fLeft">{{$e.Author}} {{$e.Time}}</div>
 		<div class="fRight">
-			<a class="btn btn-danger btn-xs btn-vote" role="button" href="/down?id={{$e.QuoteId}}
+			<a class="btn btn-danger btn-xs btn-vote" role="button" href="/downvote?id={{$e.QuoteId}}
 				{{if $page.Search}}&page.Search={{$page.Search}}{{end}}
 				{{if $page.Page}}&page.Page={{$page.Page}}{{end}}
 				{{if $page.Size}}&page.Size={{$page.Size}}{{end}}
 				#q{{$e.QuoteId}}	
 			">-</a>
 			<span>{{$e.Rating}}</span>
-			<a class="btn btn-success btn-xs btn-vote" role="button" href="/up?id={{$e.QuoteId}}
+			<a class="btn btn-success btn-xs btn-vote" role="button" href="/upvote?id={{$e.QuoteId}}
 				{{if $page.Search}}page.Search={{$page.Search}}{{end}}
 				{{if $page.Page}}&page.Page={{$page.Page}}{{end}}
 				{{if $page.Size}}&page.Size={{$page.Size}}{{end}}

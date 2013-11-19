@@ -4,12 +4,12 @@
 
 module:testrunner
 
-GET     /                                       App.Index
+GET	/                                       App.Index
 POST    /                                       App.Post
 GET	/q/:id					App.One
 
-GET     /down                                   App.RatingDown
-GET     /up                                     App.RatingUp
+GET     /upvote					App.UpVote
+GET     /downvote				App.DownVote
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
@@ -19,15 +19,14 @@ GET     /public/*filepath                       Static.Serve("public")
 
 # API things ###
 #
-GET	/api/v0					Api.Index
-GET	/api/v0/:id				Api.One
+GET	/api/v0/				Api.Index
 
 POST	/api/v0					Api.Post
 
-# upvote
-PUT	/api/v0/:id/rating			Api.RatingUp
-# downvote
-DELETE	/api/v0/:id/rating			Api.RatingDown
+GET	/api/v0/:id				Api.One
+
+PUT	/api/v0/:id/rating			Api.UpVote
+DELETE	/api/v0/:id/rating			Api.DownVote
 
 # Catch all
 *       /:controller/:action                    :controller.:action

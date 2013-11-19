@@ -1,91 +1,79 @@
 package controllers
 
 import (
-	"github.com/PacketFire/goqdb/app/models"
-//	"github.com/PacketFire/goqdb/app/routes"
 	"github.com/robfig/revel"
+	"github.com/PacketFire/goqdb/app/models"
 	"net/http"
-	"time"
 )
-
-/* Not sure wether to use Api or App here */
 type Api struct {
-	GorpController
+	Core
 }
 
-func (c Api) Index () revel.Result {
+func (c *Api) Index () revel.Result {
 
-	entries := loadEntries(c.Txn.Select(models.QdbEntry{}, `SELECT * FROM QdbEntry`))
+	entries, err := c.getEntries(0, -1, "")
 
-	if len(entries) == 0 {
-		c.Response.Status = http.StatusNoContent
-		return c.RenderJson(nil)
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
 	}
 
-	c.Response.Status = http.StatusOK
 	return c.RenderJson(entries)
 }
 
-func (c Api) One (id int) revel.Result {
+func (c *Api) Post (quote, author string) revel.Result {
 
-	entries := loadEntries(c.Txn.Select(models.QdbEntry{}, `SELECT * FROM QdbEntry WHERE QuoteId = ?`, id))
-
-	if len(entries) == 0 {
-		c.Response.Status = http.StatusNotFound
-		return c.RenderJson(nil)
-	}
-
-	return c.RenderJson(entries[0])
-}
-
-func (c *Api) Post (entry models.QdbEntry) revel.Result {
-
-	entry.Created = time.Now().Unix()
-	entry.Rating = 0
-
-	c.Validation.Required(entry.Quote)
-	c.Validation.Required(entry.Author)
-
-	if c.Validation.HasErrors() {
+	if quote == "" || author == "" {
 		c.Response.Status = http.StatusBadRequest
-		return c.RenderJson(nil)
+	} else {
+		err := c.insertEntry(models.QdbEntry{Quote: quote, Author: author})
+
+		if err != nil {
+			c.Response.Status = http.StatusInternalServerError
+		} else {
+			c.Response.Status = http.StatusCreated
+		}
 	}
-
-	err := c.Txn.Insert(&entry)
-
-	if err != nil {
-		c.Response.Status = http.StatusInternalServerError
-		return c.RenderJson(nil)
-	}
-
-	if err != nil {
-	}
-
-	c.Response.Status = http.StatusCreated
-	return c.RenderJson(entry)
-}
-
-func (c Api) RatingUp (id int) revel.Result {
-	_, err := c.Txn.Exec("UPDATE QdbEntry SET Rating = Rating + 1 WHERE QuoteId = ?", id)
-
-	if err != nil {
-		c.Response.Status = http.StatusInternalServerError
-		return c.RenderJson(nil)
-	}
-
-	c.Response.Status = http.StatusOK
 	return c.RenderJson(nil)
 }
 
-func (c Api) RatingDown (id int) revel.Result {
-	_, err := c.Txn.Exec("UPDATE QdbEntry SET Rating = Rating - 1 WHERE QuoteId = ?", id)
+func (c *Api) One (id int) revel.Result {
+
+	entries, err := c.getEntryById(id)
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
-		return c.RenderJson(nil)
+	} else {
+		if len(entries) == 0 {
+			c.Response.Status = http.StatusNotFound
+		}
 	}
+	return c.RenderJson(entries)
+}
 
-	c.Response.Status = http.StatusOK
+func (c *Api) UpVote (id int) revel.Result {
+
+	changes, err := c.upVote(id)
+
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+	} else {
+		if changes == 0 {
+			c.Response.Status = http.StatusNotFound
+		}
+	}
 	return c.RenderJson(nil)
 }
 
+func (c *Api) DownVote (id int) revel.Result {
+
+	changes, err := c.downVote(id)
+
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+	} else {
+		if changes == 0 {
+			c.Response.Status = http.StatusNotFound
+		}
+	}
+	return c.RenderJson(nil)
+}
