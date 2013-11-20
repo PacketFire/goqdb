@@ -22,34 +22,62 @@ revel run github.com/PacketFire/goqdb
 api
 ---
 
-The API results are displayed in JSON.
+### Quote Entry ###
 
-Returned field names:
+<table>
+	<thead>
+		<tr>
+			<th>Name</th> <th>Type</th> <th>Description</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>QuoteId</td> <td>int</td> <td>The quote id</td>
+		</tr>
+		<tr>
+			<td>Quote</td> <td>string</td> <td>The quote body</td>
+		</tr>
+		<tr>
+			<td>Author</td> <td>string</td> <td>The author of the quote</td>
+		</tr>
+		<tr>
+			<td>Created</td> <td>int64</td> <td>unix time in seconds</td>
+		</tr>
+		<tr>
+			<td>Rating</td> <td>int</td> <td>The quote's rating</td>
+		</tr>
+	</tbody>
+</table>
 
-* QuoteId: int
-* Quote: string
-* Author: string
-* Created: 64 bit int (unix time in seconds)
-* Rating: int
+All resources return *200* on success or *500* with an undefined body 
+if fatal errors were encountered. Resources requiring an id return a 
+*404* with undefined body if the id does not exist in the database. 
 
-Resources:
-
-* /api/v0
-
-	+ GET: Retrieve the entire database
-
-	+ POST: Insert a new entry. The accepted fields are:
-
-			- "entry.Author"
-			- "entry.Quote"
+### Retrieve the entire database
+	
+	GET /api/v0
 
 
-* /api/v0/:id
-	+ GET: Retrieve the entry of the id
+### Insert a new entry
 
-* /api/v0/:id/rating
+	POST /api/v0
 
-	+ PUT: upvote
+Accepted fields are *author* and *quote*
 
-	+ DELETE: downvote
+Note: POST returns 201 Created on success and 400 Bad Request
+if the post data did not pass validation
+
+### Retrieve quote entry
+
+*:id* is used here in place of the quote id for the target entry
+
+	GET /api/v0/:id
+
+### Upvote a quote
+
+	PUT /api/v0/:id/rating
+
+### Downvote a quote
+
+	DELETE /api/v0/:id/rating
 
