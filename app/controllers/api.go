@@ -4,6 +4,7 @@ import (
 	"github.com/robfig/revel"
 	"github.com/PacketFire/goqdb/app/models"
 	"net/http"
+	"encoding/json"
 )
 type Api struct {
 	Core
@@ -22,18 +23,33 @@ func (c *Api) Index () revel.Result {
 
 func (c *Api) Post (quote, author string) revel.Result {
 
-	if quote == "" || author == "" {
-		c.Response.Status = http.StatusBadRequest
-	} else {
-		err := c.insertEntry(models.QdbEntry{Quote: quote, Author: author})
+	var post models.QdbEntry
 
-		if err != nil {
-			c.Response.Status = http.StatusInternalServerError
-		} else {
-			c.Response.Status = http.StatusCreated
-		}
+	dec := json.NewDecoder(c.Request.Body)
+
+	err := dec.Decode(&post)
+
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		revel.TRACE.Print(err)
+		return c.RenderJson(nil)
 	}
-	return c.RenderJson(nil)
+
+	if post.Quote == "" || post.Author == "" {
+		c.Response.Status = http.StatusBadRequest
+		return c.RenderJson(nil)
+	}
+
+	err = c.insertEntry(&post)
+
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		revel.TRACE.Print(err)
+		return c.RenderJson(nil)
+	}
+
+	c.Response.Status = http.StatusCreated
+	return c.RenderJson(post)
 }
 
 func (c *Api) One (id int) revel.Result {

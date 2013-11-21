@@ -54,7 +54,7 @@ func (c *App) Post (entry models.QdbEntry, page models.PageState) revel.Result {
 		return c.Redirect(routes.App.Index(page))
 	} else {
 
-		err := c.insertEntry(entry)
+		err := c.insertEntry(&entry)
 
 		if err != nil {
 			c.Response.Status = http.StatusInternalServerError

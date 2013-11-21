@@ -22,7 +22,7 @@ revel run github.com/PacketFire/goqdb
 api
 ---
 
-### Quote Entry ###
+### QdbEntry ###
 
 <table>
 	<thead>
@@ -57,12 +57,11 @@ if fatal errors were encountered. Resources requiring an id return a
 	
 	GET /api/v0
 
-
 ### Insert a new entry
 
 	POST /api/v0
 
-Accepted fields are *author* and *quote*
+Accepts *Quote* and *Author* fields of a *QdbEntry*
 
 Note: POST returns 201 Created on success and 400 Bad Request
 if the post data did not pass validation

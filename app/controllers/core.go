@@ -22,14 +22,14 @@ func loadEntries (result []interface{}) []*models.QdbEntry {
 	return entries
 }
 
-func (c *Core) insertEntry (entry models.QdbEntry) error {
+func (c *Core) insertEntry (entry *models.QdbEntry) error {
 
 	entry.Created = time.Now().Unix()
 	entry.Rating = 0
 
 	c.Session["author"] = entry.Author
 
-	return c.Txn.Insert(&entry)
+	return c.Txn.Insert(entry)
 }
 
 func (c *Core) getEntryById (id int) ([]*models.QdbEntry, error) {
