@@ -21,7 +21,7 @@ func (c *Api) Index () revel.Result {
 	return c.RenderJson(entries)
 }
 
-func (c *Api) Post (quote, author string) revel.Result {
+func (c *Api) Post () revel.Result {
 
 	var post models.QdbEntry
 
@@ -35,6 +35,7 @@ func (c *Api) Post (quote, author string) revel.Result {
 		return c.RenderJson(nil)
 	}
 
+	/* validation stuffs */
 	if post.Quote == "" || post.Author == "" {
 		c.Response.Status = http.StatusBadRequest
 		return c.RenderJson(nil)

@@ -66,6 +66,30 @@ Accepts *Quote* and *Author* fields of a *QdbEntry*
 Note: POST returns 201 Created on success and 400 Bad Request
 if the post data did not pass validation
 
+Example:
+
+	POST /api/v0/ HTTP/1.1
+	Content-Type: application/json
+	Content-Length: 32
+
+	{"Quote": "test", "Author": "jgr"}  
+
+
+	HTTP/1.1 201 Created
+	Content-Length: 97
+	Content-Type: application/json
+	Date: Fri, 22 Nov 2013 07:01:40 GMT
+	Set-Cookie: REVEL_FLASH=; Path=/
+	Set-Cookie: REVEL_SESSION=991c688ce405ef72a04a0e573944e9c1ed6fdcbf-%00author%3Ajgr%00%00_TS%3A1387695700%00; Path=/; Expires=Sun, 22 Dec 2013 07:01:40 UTC
+
+	{
+	  "QuoteId": 10,
+	  "Quote": "test",
+	  "Created": 1385103700,
+	  "Rating": 0,
+	  "Author": "jgr"
+	}
+
 ### Retrieve quote entry
 
 *:id* is used here in place of the quote id for the target entry
