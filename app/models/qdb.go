@@ -5,6 +5,7 @@ import (
 	//	"github.com/robfig/revel"
 	"strings"
 	"time"
+	"database/sql"
 )
 
 type QdbEntry struct {
@@ -13,10 +14,35 @@ type QdbEntry struct {
 	Created int64
 	Rating  int
 	Author  string
-	//Tags string
 }
 
-func (q *QdbEntry) Clip() string {
+type PageState struct {
+	Search string
+	Page   int
+	Size   int
+}
+
+type TagEntry struct {
+	TagId   int
+	QuoteId int
+	Tag     string
+}
+
+type QdbView struct {
+	QuoteId int
+	Quote   string
+	Created int64
+	Rating  int
+	Author  string
+
+	Tags    sql.NullString
+}
+
+func (q *QdbView) Time() string {
+	return time.Unix(q.Created, 0).Format(time.UnixDate)
+}
+
+func (q *QdbView) Clip() string {
 	if len(q.Quote) > 256 {
 		return q.Quote[:256] + "\r\n..."
 	}
@@ -29,14 +55,3 @@ func (q *QdbEntry) Clip() string {
 
 	return q.Quote
 }
-
-func (q *QdbEntry) Time() string {
-	return time.Unix(q.Created, 0).Format(time.UnixDate)
-}
-
-type PageState struct {
-	Search string
-	Page   int
-	Size   int
-}
-

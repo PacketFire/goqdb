@@ -16,6 +16,7 @@ func (c *Api) Index () revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.TRACE.Print(err)
 	}
 	c.Response.ContentType = "application/json; charset=utf-8"
 
@@ -61,6 +62,7 @@ func (c *Api) One (id int) revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.TRACE.Print(err)
 	} else {
 		if len(entries) == 0 {
 			c.Response.Status = http.StatusNotFound
@@ -76,6 +78,7 @@ func (c *Api) UpVote (id int) revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.TRACE.Print(err)
 	} else {
 		if changes == 0 {
 			c.Response.Status = http.StatusNotFound
@@ -90,6 +93,7 @@ func (c *Api) DownVote (id int) revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.TRACE.Print(err)
 	} else {
 		if changes == 0 {
 			c.Response.Status = http.StatusNotFound

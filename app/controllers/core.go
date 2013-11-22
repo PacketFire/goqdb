@@ -11,12 +11,12 @@ type Core struct {
 	GorpController
 }
 
-func loadEntries (result []interface{}) []*models.QdbEntry {
+func loadEntries (result []interface{}) []*models.QdbView {
 
-	var entries []*models.QdbEntry
+	var entries []*models.QdbView
 
 	for _, r := range result {
-		entries = append(entries, r.(*models.QdbEntry))
+		entries = append(entries, r.(*models.QdbView))
 	}
 
 	return entries
@@ -32,22 +32,29 @@ func (c *Core) insertEntry (entry *models.QdbEntry) error {
 	return c.Txn.Insert(entry)
 }
 
-func (c *Core) getEntryById (id int) ([]*models.QdbEntry, error) {
+func (c *Core) getEntryById (id int) ([]*models.QdbView, error) {
 
-	result, err := c.Txn.Select(models.QdbEntry{},
-		`SELECT
-			*
-		FROM
+	result, err := c.Txn.Select(models.QdbView{}, `
+		SELECT 
+			QdbEntry.*, 
+			GROUP_CONCAT(TagEntry.Tag, ', ') AS Tags
+		FROM 
 			QdbEntry
+		LEFT JOIN
+			TagEntry
+		ON
+			TagEntry.QuoteId = QdbEntry.QuoteId
 		WHERE
-			QuoteId = ?
-		LIMIT 1`,
-		id)
+			QdbEntry.QuoteId = ?
+		GROUP BY 
+			TagEntry.QuoteId
+		LIMIT 1
+		`, id)
 
 	return loadEntries(result), err
 }
 
-func (c *Core) getEntries (page, size int, search string) ([]*models.QdbEntry, error) {
+func (c *Core) getEntries (page, size int, search string) ([]*models.QdbView, error) {
 
 	if size == 0 {
 		size = DEFAULT_SIZE
@@ -64,25 +71,36 @@ func (c *Core) getEntries (page, size int, search string) ([]*models.QdbEntry, e
 	var err error
 
 	if search == "" {
-		result, err = c.Txn.Select(models.QdbEntry{},
-			`SELECT 
-				* 
+		result, err = c.Txn.Select(models.QdbView{}, `
+			SELECT 
+				QdbEntry.*, 
+				GROUP_CONCAT(TagEntry.Tag, ', ') AS Tags 
 			FROM 
 				QdbEntry 
-			ORDER BY 
-				QuoteId DESC 
-			LIMIT ?, ?`,
+			LEFT JOIN 
+				TagEntry 
+			ON 
+				TagEntry.QuoteId = QdbEntry.QuoteId 
+			GROUP BY 
+				TagEntry.QuoteId 
+			LIMIT 
+				?, ?`,
 			lower, size)
 	} else {
 		result, err = c.Txn.Select(models.QdbEntry{},
-			`SELECT
-				*
-			FROM
+			`SELECT 
+				QdbEntry.*, 
+				GROUP_CONCAT(TagEntry.Tag, ',') AS Tags
+			FROM 
 				QdbEntry
+			LEFT JOIN
+				TagEntry
+			ON
+				TagEntry.QuoteId = QdbEntry.QuoteId
 			WHERE
-				LOWER(Quote)
-			LIKE
-				?
+				LOWER(QdbEntry.Quote) LIKE ?
+			GROUP BY 
+				TagEntry.QuoteId
 			LIMIT
 				?, ?`,
 			"%"+search+"%", lower, size)
