@@ -36,18 +36,23 @@ func (c *Core) getEntryById (id int) ([]*models.QdbView, error) {
 
 	result, err := c.Txn.Select(models.QdbView{}, `
 		SELECT 
-			QdbEntry.*, 
-			GROUP_CONCAT(TagEntry.Tag, ', ') AS Tags
+			QdbEntry.*, G.Tags 
 		FROM 
 			QdbEntry
 		LEFT JOIN
-			TagEntry
+			(
+				SELECT 
+					TagEntry.QuoteId,
+					GROUP_CONCAT(TagEntry.Tag, ',') AS Tags
+				FROM 
+					TagEntry
+				GROUP BY 
+					TagEntry.QuoteId
+			) AS G
 		ON
-			TagEntry.QuoteId = QdbEntry.QuoteId
+			G.QuoteId = QdbEntry.QuoteId
 		WHERE
 			QdbEntry.QuoteId = ?
-		GROUP BY 
-			TagEntry.QuoteId
 		LIMIT 1
 		`, id)
 
@@ -73,34 +78,44 @@ func (c *Core) getEntries (page, size int, search string) ([]*models.QdbView, er
 	if search == "" {
 		result, err = c.Txn.Select(models.QdbView{}, `
 			SELECT 
-				QdbEntry.*, 
-				GROUP_CONCAT(TagEntry.Tag, ', ') AS Tags 
+				QdbEntry.*, G.Tags 
 			FROM 
-				QdbEntry 
-			LEFT JOIN 
-				TagEntry 
-			ON 
-				TagEntry.QuoteId = QdbEntry.QuoteId 
-			GROUP BY 
-				TagEntry.QuoteId 
+				QdbEntry
+			LEFT JOIN
+				(
+					SELECT 
+						TagEntry.QuoteId,
+						GROUP_CONCAT(TagEntry.Tag, ',') AS Tags
+					FROM 
+						TagEntry
+					GROUP BY 
+						TagEntry.QuoteId
+				) AS G
+			ON
+				G.QuoteId = QdbEntry.QuoteId
 			LIMIT 
 				?, ?`,
 			lower, size)
 	} else {
-		result, err = c.Txn.Select(models.QdbEntry{},
-			`SELECT 
-				QdbEntry.*, 
-				GROUP_CONCAT(TagEntry.Tag, ',') AS Tags
+		result, err = c.Txn.Select(models.QdbEntry{}, `
+			SELECT 
+				QdbEntry.*, G.Tags 
 			FROM 
 				QdbEntry
 			LEFT JOIN
-				TagEntry
+				(
+					SELECT 
+						TagEntry.QuoteId,
+						GROUP_CONCAT(TagEntry.Tag, ',') AS Tags
+					FROM 
+						TagEntry
+					GROUP BY 
+						TagEntry.QuoteId
+				) AS G
 			ON
-				TagEntry.QuoteId = QdbEntry.QuoteId
+				G.QuoteId = QdbEntry.QuoteId
 			WHERE
 				LOWER(QdbEntry.Quote) LIKE ?
-			GROUP BY 
-				TagEntry.QuoteId
 			LIMIT
 				?, ?`,
 			"%"+search+"%", lower, size)
