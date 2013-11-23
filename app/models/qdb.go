@@ -1,11 +1,8 @@
 package models
 
 import (
-	//        "github.com/coopernurse/gorp"
-	//	"github.com/robfig/revel"
 	"strings"
 	"time"
-	"database/sql"
 )
 
 type QdbEntry struct {
@@ -20,6 +17,7 @@ type PageState struct {
 	Search string
 	Page   int
 	Size   int
+	Tag    string
 }
 
 type TagEntry struct {
@@ -35,7 +33,8 @@ type QdbView struct {
 	Rating  int
 	Author  string
 
-	Tags    sql.NullString
+	//Tags string
+	Tags []string
 }
 
 func (q *QdbView) Time() string {

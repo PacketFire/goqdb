@@ -21,6 +21,8 @@ func Init() {
 	Dbm.AddTable(models.QdbEntry{}).SetKeys(true, "QuoteId")
 	Dbm.AddTable(models.TagEntry{}).SetKeys(true, "TagId")
 
+	Dbm.TypeConverter = QdbTypeConverter{}
+
 	Dbm.TraceOn("[gorp]", r.INFO)
 	Dbm.CreateTables()
 }

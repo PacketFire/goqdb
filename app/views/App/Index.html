@@ -9,27 +9,30 @@
 	<br/>
 
 	<form role="form" method="post" action="/">
-		<!-- Textarea -->
 		{{with $field := field "entry.Quote" .}}
 		<div class="form-group {{$field.ErrorClass}}">
 			<textarea class="form-control" id="quote" name="entry.Quote" placeholder="quote">{{$field.Flash}}</textarea>
 		</div>
 		{{end}}
-		<!-- Text input-->
-		<!-- XXX: use field? -->
-		{{$savedAuthor := .savedAuthor}}
-		{{with $field := field "entry.Author" .}}
-		<div class="form-group row {{$field.ErrorClass}}">
-			<div class="col-xs-3">
-				<input class="form-control" id="author" name="entry.Author" type="text" placeholder="author" value="{{$savedAuthor}}">
+
+		<div class="row">
+			{{with $field := field "tags" .}}
+			<div class="form-group {{$field.ErrorClass}} col-xs-5">
+				<input class="form-control" id="tags" name="tags" type="text" placeholder="tags" value="{{$field.Flash}}" />
 			</div>
+			{{end}}
+			
+			{{$savedAuthor := .savedAuthor}}
+			{{with $field := field "entry.Author" .}}
+			<div class="form-group {{$field.ErrorClass}} col-xs-3">
+				<input class="form-control" id="author" name="entry.Author" type="text" placeholder="author" value="{{$savedAuthor}}" />
+			</div>
+			{{end}}
+
 			<div class="form-group col-xs-3">
 				<button id="submit" name="submit" type="submit" class="btn btn-primary">submit</button>
 			</div>
 		</div>
-		{{end}}
-
-		<!-- Submit -->
 	</form>
 
 	<form class="form-inline" role="form" method="get" action="">
@@ -45,53 +48,64 @@
 		<a class="btn btn-default fLeft" {{if eq .hasPrevPage false}}disabled="disabled"{{end}} 
 			href="?page.Page={{.prevPage}}
 				{{if .page.Search}}&page.Search={{.page.Search}}{{end}}
-				{{if .page.Size}}&page.Size={{.page.Size}}{{end}}"
-		>
+				{{if .page.Size}}&page.Size={{.page.Size}}{{end}}
+				{{if .page.Tag}}&page.Tag={{.page.Tag}}{{end}}
+		">
 			prev
 		</a>
 		<a class="btn btn-default fRight" {{if eq .hasNextPage false}}disabled="disabled"{{end}} 
 			href="?page.Page={{.nextPage}}
 				{{if .page.Search}}&page.Search={{.page.Search}}{{end}}
-				{{if .page.Size}}&page.Size={{.page.Size}}{{end}}"
-		>
+				{{if .page.Size}}&page.Size={{.page.Size}}{{end}}
+				{{if .page.Tag}}&page.Tag={{.page.Tag}}{{end}}
+		">
 			next
 		</a>
 	</div>
 	
 	<br/>
-	
+
 	{{$page := .page}}
 
-	{{with $entries := .entries}}
-	{{range $e := $entries}}
-	<!-- author, time, rating buttons -->
-	<a id="q{{$e.QuoteId}}"></a>
-	<div class="clearfix">
-		<div class="fLeft">{{$e.Author}} {{$e.Time}}</div>
-		<div class="fRight">
-			<a class="btn btn-danger btn-xs btn-vote" role="button" href="/downvote?id={{$e.QuoteId}}
-				{{if $page.Search}}&page.Search={{$page.Search}}{{end}}
-				{{if $page.Page}}&page.Page={{$page.Page}}{{end}}
-				{{if $page.Size}}&page.Size={{$page.Size}}{{end}}
-				#q{{$e.QuoteId}}	
-			">-</a>
-			<span>{{$e.Rating}}</span>
-			<a class="btn btn-success btn-xs btn-vote" role="button" href="/upvote?id={{$e.QuoteId}}
-				{{if $page.Search}}page.Search={{$page.Search}}{{end}}
-				{{if $page.Page}}&page.Page={{$page.Page}}{{end}}
-				{{if $page.Size}}&page.Size={{$page.Size}}{{end}}
-				#q{{$e.QuoteId}}	
-			">+</a>
-		</div>
-	</div>
+	<div class="clearfix quoteList">
+	{{range $e := .entries}}
+		<article>
+			<header class="container">
+				<div class="col-xs-8">
+					<p class="text-info">{{$e.Author}} &mdash; {{$e.Time}}</p>
+				</div>
 
-	<!-- The actual quote -->
-	<pre class="quote_entry"><a href="/q/{{$e.QuoteId}}">{{$e.Clip}}</a></pre>
-
-	{{end}}
+				<div class="col-xs-4 text-right">
+					<a class="btn btn-danger btn-xs btn-vote" role="button" href="/downvote?id={{$e.QuoteId}}
+						{{if $page.Search}}&page.Search={{$page.Search}}{{end}}
+						{{if $page.Page}}&page.Page={{$page.Page}}{{end}}
+						{{if $page.Size}}&page.Size={{$page.Size}}{{end}}
+						{{if $page.Tag}}&page.Tag={{$page.Tag}}{{end}}
+						#q{{$e.QuoteId}}
+					">-</a>
+					<span>{{$e.Rating}}</span>
+					<a class="btn btn-success btn-xs btn-vote" role="button" href="/upvote?id={{$e.QuoteId}}
+						{{if $page.Search}}page.Search={{$page.Search}}{{end}}
+						{{if $page.Page}}&page.Page={{$page.Page}}{{end}}
+						{{if $page.Size}}&page.Size={{$page.Size}}{{end}}
+						{{if $page.Tag}}&page.Tag={{$page.Tag}}{{end}}
+						#q{{$e.QuoteId}}
+					">+</a>
+				</div>
+			</header>
+			<a class="quote" href="/q/{{$e.QuoteId}}">
+				<pre class="">{{$e.Clip}}</pre>
+			</a>
+			<ul class="list-inline">
+			{{range $t := $e.Tags}}
+				<li><a href="?page.Tag={{$t}}">{{$t}}</a></li>
+			{{end}}
+			</ul>
+		</article>
 	{{else}}
-	<p>No more results</p>
+		<p class="text-info">No more results</p>
 	{{end}}
+	</div>
 </div>
 
 

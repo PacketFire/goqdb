@@ -27,7 +27,7 @@ func (c *App) Index (page models.PageState) revel.Result {
 
 	page.Search = strings.TrimSpace(page.Search)
 
-	entries, err := c.getEntries(page.Page, page.Size, page.Search)
+	entries, err := c.getEntries(page.Page, page.Size, page.Tag, page.Search)
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
@@ -43,7 +43,9 @@ func (c *App) Index (page models.PageState) revel.Result {
 	return c.Render(entries, savedAuthor, page, hasPrevPage, prevPage, hasNextPage, nextPage)
 }
 
-func (c *App) Post (entry models.QdbEntry, page models.PageState) revel.Result {
+func (c *App) Post (entry models.QdbEntry, tags string, page models.PageState) revel.Result {
+
+	var view models.QdbView
 
 	c.Validation.Required(entry.Quote)
 	c.Validation.Required(entry.Author)
@@ -52,14 +54,27 @@ func (c *App) Post (entry models.QdbEntry, page models.PageState) revel.Result {
 		c.Validation.Keep()
 		c.FlashParams()
 		return c.Redirect(routes.App.Index(page))
-	} else {
+	}
 
-		err := c.insertEntry(&entry)
+	view.Quote = entry.Quote
+	view.Author = entry.Author
 
-		if err != nil {
-			c.Response.Status = http.StatusInternalServerError
+	if tags != "" {
+		view.Tags = strings.Split(tags, ",")
+
+		for _, t := range view.Tags {
+			t = strings.TrimSpace(t)
 		}
 	}
+
+	err := c.insertView(&view)
+
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		return c.Redirect(routes.App.Index(page))
+	}
+
+	c.Session["author"] = entry.Author
 
 	return c.Redirect(routes.App.Index(page))
 }

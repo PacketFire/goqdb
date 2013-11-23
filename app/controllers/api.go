@@ -12,7 +12,7 @@ type Api struct {
 
 func (c *Api) Index () revel.Result {
 
-	entries, err := c.getEntries(0, -1, "")
+	entries, err := c.getEntries(0, -1, "", "")
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
@@ -25,7 +25,7 @@ func (c *Api) Index () revel.Result {
 
 func (c *Api) Post () revel.Result {
 
-	var post models.QdbEntry
+	var post models.QdbView
 
 	dec := json.NewDecoder(c.Request.Body)
 
@@ -43,7 +43,8 @@ func (c *Api) Post () revel.Result {
 		return c.RenderJson(nil)
 	}
 
-	err = c.insertEntry(&post)
+//	err = c.insertEntry(&post)
+	err = c.insertView(&post)
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
