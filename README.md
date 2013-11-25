@@ -22,7 +22,7 @@ revel run github.com/PacketFire/goqdb
 api
 ---
 
-### QdbEntry ###
+### QdbView ###
 
 <table>
 	<thead>
@@ -46,6 +46,9 @@ api
 		<tr>
 			<td>Rating</td> <td>int</td> <td>The quote's rating</td>
 		</tr>
+		<tr>
+			<td>Tags</td> <td>[]string</td> <td>An array of tag strings, white space is trimmed from either side</td>
+		</tr>
 	</tbody>
 </table>
 
@@ -53,48 +56,69 @@ All resources return *200* on success or *500* with an undefined body
 if fatal errors were encountered. Resources requiring an id return a 
 *404* with undefined body if the id does not exist in the database. 
 
-### Retrieve the entire database
+### Retrieve entries by date
 	
+Quotes from *the current year*
+
 	GET /api/v0
+
+#### Specifying a date range
+
+Year:
+
+	GET /api/2010/7/1
+
+Month:
+	
+	GET /api/2010/7
+
+Day:
+
+	GET /api/v0/2010/7/1
 
 ### Insert a new entry
 
 	POST /api/v0
 
-Accepts *Quote* and *Author* fields of a *QdbEntry*
+Accepts *Quote*, *Author* and *Tags* fields of a *QdbView*
 
 Note: POST returns 201 Created on success and 400 Bad Request
 if the post data did not pass validation
 
-Example:
+Request:
 
 	POST /api/v0/ HTTP/1.1
 	Content-Type: application/json
-	Content-Length: 32
+	Content-Length: 58
 
-	{"Quote": "test", "Author": "jgr"}  
+	{"Quote": "test", "Author": "jgr", Tags: ["foo", "bar"]}
 
+Response:
 
 	HTTP/1.1 201 Created
-	Content-Length: 97
+	Content-Length: 135
 	Content-Type: application/json
-	Date: Fri, 22 Nov 2013 07:01:40 GMT
+	Date: Mon, 25 Nov 2013 16:11:28 GMT
 	Set-Cookie: REVEL_FLASH=; Path=/
-	Set-Cookie: REVEL_SESSION=991c688ce405ef72a04a0e573944e9c1ed6fdcbf-%00author%3Ajgr%00%00_TS%3A1387695700%00; Path=/; Expires=Sun, 22 Dec 2013 07:01:40 UTC
+	Set-Cookie: REVEL_SESSION=64172d7dab5d922c6cdc2ca993e72647e3585d75-%00_TS%3A1387987888%00; Path=/; Expires=Wed, 25 Dec 2013 16:11:28 UTC
 
 	{
-	  "QuoteId": 10,
+	  "QuoteId": 20,
 	  "Quote": "test",
-	  "Created": 1385103700,
+	  "Created": 1385395888,
 	  "Rating": 0,
-	  "Author": "jgr"
+	  "Author": "jgr",
+	  "Tags": [
+	    "foo",
+	    "bar"
+	 ]
 	}
 
 ### Retrieve quote entry
 
 *:id* is used here in place of the quote id for the target entry
 
-	GET /api/v0/:id
+	GET /api/v0/:id/view
 
 ### Upvote a quote
 

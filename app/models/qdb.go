@@ -55,3 +55,8 @@ func (q *QdbView) Clip() string {
 
 	return q.Quote
 }
+
+type DateRange struct {
+	Lower, Upper int64
+}
+

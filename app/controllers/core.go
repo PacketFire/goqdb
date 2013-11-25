@@ -65,6 +65,8 @@ func (c *Core) insertView (view *models.QdbView) error {
 		return err
 	}
 
+	view.QuoteId = entry.QuoteId
+
 	for _, s := range view.Tags {
 		s = strings.TrimSpace(s)
 		if s != "" {
@@ -72,11 +74,10 @@ func (c *Core) insertView (view *models.QdbView) error {
 		}
 	}
 
-
 	return err
 }
 
-func (c *Core) getEntryById (id int) ([]models.QdbView, error) {
+func (c *Core) getEntry (id int) (models.QdbView, error) {
 
 	var entries []models.QdbView
 	_, err := c.Txn.Select(&entries, `
@@ -90,18 +91,14 @@ func (c *Core) getEntryById (id int) ([]models.QdbView, error) {
 		`, id,
 	)
 
-	return entries, err
+	if len(entries) == 0 {
+		return models.QdbView{}, err
+	}
+
+	return entries[0], err
 }
 
-func (c *Core) getEntries (page, size int, tag, search string) ([]models.QdbView, error) {
-
-	var lower int
-
-	if size > 0 {
-		lower = size * (page - 1)
-	} else {
-		lower = 0
-	}
+func (c *Core) getEntries (state models.PageState, r models.DateRange) ([]models.QdbView, error) {
 
 	params := make(map[string]interface{})
 
@@ -114,16 +111,16 @@ func (c *Core) getEntries (page, size int, tag, search string) ([]models.QdbView
 		FROM 
 			QdbView`
 
-	if search != "" {
+	if state.Search != "" {
 		query += `
 		WHERE 
 			Quote LIKE :search`
 
-		params["search"] = "%"+search+"%"
+		params["search"] = "%"+state.Search+"%"
 	}
 
-	if tag != "" {
-		if search != "" {
+	if state.Tag != "" {
+		if state.Search != "" {
 			query += `
 		AND`
 		} else {
@@ -141,15 +138,36 @@ func (c *Core) getEntries (page, size int, tag, search string) ([]models.QdbView
 					TagEntry.Tag = :tag
 			)`
 
-		params["tag"] = tag
+		params["tag"] = state.Tag
 	}
 
+	if r.Lower != 0 && r.Upper != 0 {
+		if state.Search != "" || state.Tag != "" {
+			query += `
+		AND`
+		} else {
+			query += `
+		WHERE`
+		}
 
+		query += `
+			Created BETWEEN :dateLower AND :dateUpper`
+		params["dateLower"] = r.Lower
+		params["dateUpper"] = r.Upper
+	}
+
+	var lower int
+
+	if state.Size > 0 {
+		lower = state.Size * (state.Page - 1)
+	} else {
+		lower = 0
+	}
 	query += `
-		LIMIT :lower, :size`
+		LIMIT :limitLower, :size`
 
-	params["lower"] = lower
-	params["size"]  = size
+	params["limitLower"] = lower
+	params["size"]  = state.Size
 
 	_, err = c.Txn.Select(&entries, query, params)
 	return entries, err

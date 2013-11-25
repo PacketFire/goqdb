@@ -56,7 +56,12 @@ func (c *App) Index (page models.PageState) revel.Result {
 
 	page.Search = strings.TrimSpace(page.Search)
 
-	entries, err := c.getEntries(page.Page, size, page.Tag, page.Search)
+	entries, err := c.getEntries(models.PageState{
+			Page: page.Page, Size: size,
+			Tag: page.Tag, Search: page.Search,
+		},
+		models.DateRange{},
+	)
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
@@ -98,15 +103,16 @@ func (c *App) Post (entry models.QdbView, page models.PageState) revel.Result {
 func (c *App) One (id int) revel.Result {
 
 	var quote string
-	entries, err := c.getEntryById(id);
+	entry, err := c.getEntry(id);
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
 	} else {
-		if len(entries) == 0 {
-			c.Flash.Error(fmt.Sprintf("No such id: %d", id))
+		if entry.QuoteId == 0 {
+			c.Response.Status = http.StatusNotFound
+			return Utf8Result(fmt.Sprintf("No such id: %d", id))
 		} else {
-			quote = entries[0].Quote
+			quote = entry.Quote
 		}
 	}
 

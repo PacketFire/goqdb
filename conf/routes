@@ -19,11 +19,15 @@ GET     /public/*filepath                       Static.Serve("public")
 
 # API things ###
 #
+GET	/api/v0/:id/view			Api.One
+
 GET	/api/v0/				Api.Index
+GET 	/api/v0/:Y				Api.Index
+GET	/api/v0/:Y/:m				Api.Index
+GET	/api/v0/:Y/:m/:d			Api.Index
 
 POST	/api/v0					Api.Post
 
-GET	/api/v0/:id				Api.One
 
 PUT	/api/v0/:id/rating			Api.UpVote
 DELETE	/api/v0/:id/rating			Api.DownVote
