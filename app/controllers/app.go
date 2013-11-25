@@ -7,11 +7,33 @@ import (
 	"fmt"
 	"strings"
 	"net/http"
+	"reflect"
 )
+
+var TagListBinder = revel.Binder{
+	Bind: revel.ValueBinder(func (val string, typ reflect.Type) reflect.Value {
+		if len(val) == 0 {
+			return reflect.Zero(typ)
+		}
+
+		s := strings.Split(val, ",")
+
+		return reflect.ValueOf(s)
+	}),
+	Unbind: nil,
+}
+
+func init () {
+	revel.ERROR_CLASS = "has-error"
+
+	revel.TypeBinders[reflect.TypeOf(models.TagList{})] = TagListBinder
+}
 
 type App struct {
 	Core
 }
+
+var DEFAULT_SIZE = 5
 
 func (c *App) Index (page models.PageState) revel.Result {
 
@@ -25,9 +47,16 @@ func (c *App) Index (page models.PageState) revel.Result {
 		page.Page = 1
 	}
 
+	var size int
+	if page.Size > 0 {
+		size = page.Size
+	} else {
+		size = DEFAULT_SIZE
+	}
+
 	page.Search = strings.TrimSpace(page.Search)
 
-	entries, err := c.getEntries(page.Page, page.Size, page.Tag, page.Search)
+	entries, err := c.getEntries(page.Page, size, page.Tag, page.Search)
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
@@ -38,14 +67,12 @@ func (c *App) Index (page models.PageState) revel.Result {
 
 
 	hasPrevPage := page.Page > 1
-	hasNextPage := len(entries) == page.Size
+	hasNextPage := len(entries) == size
 
 	return c.Render(entries, savedAuthor, page, hasPrevPage, prevPage, hasNextPage, nextPage)
 }
 
-func (c *App) Post (entry models.QdbEntry, tags string, page models.PageState) revel.Result {
-
-	var view models.QdbView
+func (c *App) Post (entry models.QdbView, page models.PageState) revel.Result {
 
 	c.Validation.Required(entry.Quote)
 	c.Validation.Required(entry.Author)
@@ -56,18 +83,7 @@ func (c *App) Post (entry models.QdbEntry, tags string, page models.PageState) r
 		return c.Redirect(routes.App.Index(page))
 	}
 
-	view.Quote = entry.Quote
-	view.Author = entry.Author
-
-	if tags != "" {
-		view.Tags = strings.Split(tags, ",")
-
-		for _, t := range view.Tags {
-			t = strings.TrimSpace(t)
-		}
-	}
-
-	err := c.insertView(&view)
+	err := c.insertView(&entry)
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError

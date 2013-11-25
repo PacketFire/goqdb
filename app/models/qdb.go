@@ -26,6 +26,8 @@ type TagEntry struct {
 	Tag     string
 }
 
+type TagList []string
+
 type QdbView struct {
 	QuoteId int
 	Quote   string
@@ -33,8 +35,7 @@ type QdbView struct {
 	Rating  int
 	Author  string
 
-	//Tags string
-	Tags []string
+	Tags TagList
 }
 
 func (q *QdbView) Time() string {

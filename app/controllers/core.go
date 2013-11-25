@@ -1,14 +1,13 @@
 package controllers
 
 import (
+//	"github.com/robfig/revel"
 	"github.com/PacketFire/goqdb/app/models"
 	"github.com/coopernurse/gorp"
 	"time"
 	"errors"
 	"strings"
 )
-
-var DEFAULT_SIZE = 5
 
 type QdbTypeConverter struct {}
 
@@ -18,7 +17,7 @@ func (me QdbTypeConverter) ToDb (val interface{}) (interface{}, error) {
 
 func (me QdbTypeConverter) FromDb (target interface{}) (gorp.CustomScanner, bool) {
 	switch target.(type) {
-		case *[]string:
+		case *models.TagList:
 			binder := func (holder, target interface{}) error {
 				s, ok := holder.(*string)
 
@@ -26,14 +25,14 @@ func (me QdbTypeConverter) FromDb (target interface{}) (gorp.CustomScanner, bool
 					return errors.New("FromDb: Unable to convert holder")
 				}
 
-				sl, ok := target.(*[]string)
+				sl, ok := target.(*models.TagList)
 
 				if !ok {
 					return errors.New("FromDb: Unable to convert target")
 				}
 
 				if *s == "" {
-					*sl = make([]string, 0)
+					*sl = make(models.TagList, 0)
 				} else {
 					*sl = strings.Split(*s, ",")
 				}
@@ -66,15 +65,13 @@ func (c *Core) insertView (view *models.QdbView) error {
 		return err
 	}
 
-	//var t []models.TagEntry
-
-	// implement a revel custom binder instead of this shit
 	for _, s := range view.Tags {
-		//t = append(t, models.TagEntry{QuoteId: entry.QuoteId, Tag: s})
-		c.Txn.Insert(&models.TagEntry{QuoteId: entry.QuoteId, Tag: s})
+		s = strings.TrimSpace(s)
+		if s != "" {
+			c.Txn.Insert(&models.TagEntry{QuoteId: entry.QuoteId, Tag: s})
+		}
 	}
 
-	//err = c.Txn.Insert(t)
 
 	return err
 }
@@ -108,10 +105,6 @@ func (c *Core) getEntryById (id int) ([]models.QdbView, error) {
 }
 
 func (c *Core) getEntries (page, size int, tag, search string) ([]models.QdbView, error) {
-
-	if size == 0 {
-		size = DEFAULT_SIZE
-	}
 
 	var lower int
 
@@ -178,10 +171,9 @@ func (c *Core) getEntries (page, size int, tag, search string) ([]models.QdbView
 		LIMIT :lower, :size`
 
 	params["lower"] = lower
-	params["size"] = size
+	params["size"]  = size
 
 	_, err = c.Txn.Select(&entries, query, params)
-
 	return entries, err
 }
 

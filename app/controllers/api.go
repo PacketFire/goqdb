@@ -18,8 +18,6 @@ func (c *Api) Index () revel.Result {
 		c.Response.Status = http.StatusInternalServerError
 		revel.TRACE.Print(err)
 	}
-	c.Response.ContentType = "application/json; charset=utf-8"
-
 	return c.RenderJson(entries)
 }
 
@@ -43,7 +41,6 @@ func (c *Api) Post () revel.Result {
 		return c.RenderJson(nil)
 	}
 
-//	err = c.insertEntry(&post)
 	err = c.insertView(&post)
 
 	if err != nil {
@@ -53,7 +50,6 @@ func (c *Api) Post () revel.Result {
 	}
 
 	c.Response.Status = http.StatusCreated
-	c.Response.ContentType = "application/json; charset=utf-8"
 	return c.RenderJson(post)
 }
 
@@ -69,7 +65,6 @@ func (c *Api) One (id int) revel.Result {
 			c.Response.Status = http.StatusNotFound
 		}
 	}
-	c.Response.ContentType = "application/json; charset=utf-8"
 	return c.RenderJson(entries)
 }
 
