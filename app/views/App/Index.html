@@ -9,23 +9,24 @@
 	<br/>
 
 	<form role="form" method="post" action="/">
-		{{with $field := field "entry.Quote" .}}
+		<!-- update form input names -->
+		{{with $field := field "quote.Quote" .}}
 		<div class="form-group {{$field.ErrorClass}}">
-			<textarea class="form-control" id="quote" name="entry.Quote" placeholder="quote">{{$field.Flash}}</textarea>
+			<textarea class="form-control" id="quote" name="{{$field.Name}}" placeholder="quote">{{$field.Flash}}</textarea>
 		</div>
 		{{end}}
 
 		<div class="row">
-			{{with $field := field "tags" .}}
+			{{with $field := field "quote.Tags" .}}
 			<div class="form-group {{$field.ErrorClass}} col-xs-5">
-				<input class="form-control" id="tags" name="entry.Tags" type="text" placeholder="tags" value="{{$field.Flash}}" />
+				<input class="form-control" id="tags" name="{{$field.Name}}" type="text" placeholder="tags" value="{{$field.Flash}}" />
 			</div>
 			{{end}}
 			
 			{{$savedAuthor := .savedAuthor}}
-			{{with $field := field "entry.Author" .}}
+			{{with $field := field "quote.Author" .}}
 			<div class="form-group {{$field.ErrorClass}} col-xs-3">
-				<input class="form-control" id="author" name="entry.Author" type="text" placeholder="author" value="{{$savedAuthor}}" />
+				<input class="form-control" id="author" name="{{$field.Name}}" type="text" placeholder="author" value="{{$savedAuthor}}" />
 			</div>
 			{{end}}
 
@@ -37,27 +38,29 @@
 
 	<form class="form-inline" role="form" method="get" action="">
 		<div class="form-group">
-			<input class="form-control" type="search" id="search" name="page.Search" value="{{.page.Search}}" placeholder="search" />
+			<input class="form-control" type="search" id="search" name="search" value="{{.page.Search}}" placeholder="search" />
 		</div>
 		<button class="btn btn-primary" type=""><span class="glyphicon glyphicon-search"></span></button>
 	</form>
 
 	<br/>
 
+	<!-- tag cloud -->
+
 	<div id="pageLinks" class="clearfix">
-		<a class="btn btn-default fLeft" {{if eq .hasPrevPage false}}disabled="disabled"{{end}} 
-			href="?page.Page={{.prevPage}}
-				{{if .page.Search}}&page.Search={{.page.Search}}{{end}}
-				{{if .page.Size}}&page.Size={{.page.Size}}{{end}}
-				{{if .page.Tag}}&page.Tag={{.page.Tag}}{{end}}
+		<a class="btn btn-default fLeft" {{if eq .page.HasPrev false}}disabled="disabled"{{end}} 
+			href="?page={{.page.PrevPage}}
+				{{if .page.Search}}&search={{.page.Search}}{{end}}
+				{{if .page.Size}}&size={{.page.Size}}{{end}}
+				{{if .page.Tag}}&tag={{.page.Tag}}{{end}}
 		">
 			prev
 		</a>
-		<a class="btn btn-default fRight" {{if eq .hasNextPage false}}disabled="disabled"{{end}} 
-			href="?page.Page={{.nextPage}}
-				{{if .page.Search}}&page.Search={{.page.Search}}{{end}}
-				{{if .page.Size}}&page.Size={{.page.Size}}{{end}}
-				{{if .page.Tag}}&page.Tag={{.page.Tag}}{{end}}
+		<a class="btn btn-default fRight" {{if eq .page.HasNext false}}disabled="disabled"{{end}} 
+			href="?page={{.page.NextPage}}
+				{{if .page.Search}}&search={{.page.Search}}{{end}}
+				{{if .page.Size}}&size={{.page.Size}}{{end}}
+				{{if .page.Tag}}&tag={{.page.Tag}}{{end}}
 		">
 			next
 		</a>
@@ -77,18 +80,18 @@
 
 				<div class="col-xs-4 text-right">
 					<a class="btn btn-danger btn-xs btn-vote" role="button" href="/downvote?id={{$e.QuoteId}}
-						{{if $page.Search}}&page.Search={{$page.Search}}{{end}}
-						{{if $page.Page}}&page.Page={{$page.Page}}{{end}}
-						{{if $page.Size}}&page.Size={{$page.Size}}{{end}}
-						{{if $page.Tag}}&page.Tag={{$page.Tag}}{{end}}
+						{{if $page.Search}}&search={{$page.Search}}{{end}}
+						{{if $page.Page}}&page={{$page.Page}}{{end}}
+						{{if $page.Size}}&size={{$page.Size}}{{end}}
+						{{if $page.Tag}}&tag={{$page.Tag}}{{end}}
 						#q{{$e.QuoteId}}
 					">-</a>
 					<span>{{$e.Rating}}</span>
 					<a class="btn btn-success btn-xs btn-vote" role="button" href="/upvote?id={{$e.QuoteId}}
-						{{if $page.Search}}page.Search={{$page.Search}}{{end}}
-						{{if $page.Page}}&page.Page={{$page.Page}}{{end}}
-						{{if $page.Size}}&page.Size={{$page.Size}}{{end}}
-						{{if $page.Tag}}&page.Tag={{$page.Tag}}{{end}}
+						{{if $page.Search}}search={{$page.Search}}{{end}}
+						{{if $page.Page}}&page={{$page.Page}}{{end}}
+						{{if $page.Size}}&size={{$page.Size}}{{end}}
+						{{if $page.Tag}}&tag={{$page.Tag}}{{end}}
 						#q{{$e.QuoteId}}
 					">+</a>
 				</div>
@@ -96,11 +99,11 @@
 			<a class="quote" href="/q/{{$e.QuoteId}}">
 				<pre class="">{{$e.Clip}}</pre>
 			</a>
-			<ul class="list-inline">
+			<p class="">tags:
 			{{range $t := $e.Tags}}
-				<li><a href="?page.Tag={{$t}}">{{$t}}</a></li>
+				<a href="?tag={{$t}}">{{$t}}</a>
 			{{end}}
-			</ul>
+			</p>
 		</article>
 	{{else}}
 		<p class="text-info">No more results</p>

@@ -2,40 +2,110 @@ package controllers
 
 import (
 	"github.com/robfig/revel"
-	"github.com/PacketFire/goqdb/app/routes"
+
 	"github.com/PacketFire/goqdb/app/models"
-	"fmt"
-	"strings"
+	"github.com/PacketFire/goqdb/app/routes"
+
 	"net/http"
+
 	"reflect"
+	"strings"
+	"fmt"
 )
 
-var TagListBinder = revel.Binder{
-	Bind: revel.ValueBinder(func (val string, typ reflect.Type) reflect.Value {
-		if len(val) == 0 {
-			return reflect.Zero(typ)
-		}
-
-		s := strings.Split(val, ",")
-
-		return reflect.ValueOf(s)
-	}),
-	Unbind: nil,
+type App struct {
+	GorpController
 }
+
+
+var (
+	// form input tag delimiter
+	TagDelim = " "
+
+	// order input -> order column
+	Orders = map[string]string{
+		"created": "Created",
+		"rating":  "Rating",
+	}
+
+	// form input "c"sv tags binder
+	TagsBinder = revel.Binder{
+
+		Bind: revel.ValueBinder(func (val string, typ reflect.Type) reflect.Value {
+			if len(val) == 0 {
+				return reflect.Zero(typ)
+			}
+			s := strings.Split(val, TagDelim)
+
+			return reflect.ValueOf(s)
+		}),
+		Unbind: nil,
+	}
+
+	PaginationBinder = revel.Binder{
+		Bind: func (params *revel.Params, name string, typ reflect.Type) reflect.Value {
+			var p models.Pagination
+
+			params.Bind(&p.Page,   "page")
+
+			if p.Page == 0 {
+				p.Page = 1
+			}
+
+			params.Bind(&p.Size,   "size")
+
+			if p.Size != 0 && p.Size > VIEW_SIZE_MAX {
+				p.Size = VIEW_SIZE_DEFAULT
+			}
+
+			params.Bind(&p.Search, "search")
+			p.Search = strings.TrimSpace(p.Search)
+
+			params.Bind(&p.Tag, "tag")
+			p.Tag = strings.TrimSpace(p.Tag)
+
+			params.Bind(&p.Order, "order")
+			p.Order = strings.TrimSpace(p.Order)
+
+			p.HasNext = false
+			p.HasPrev = false
+
+			return reflect.ValueOf(p)
+		},
+		Unbind: func (output map[string]string, key string, val interface{}) {
+			p := val.(models.Pagination)
+
+			if p.Page != 0 {
+				revel.Unbind(output, "page", p.Page)
+			}
+			if p.Size != 0 {
+				revel.Unbind(output, "size", p.Size)
+			}
+			if p.Search != "" {
+				revel.Unbind(output, "search", p.Search)
+			}
+
+			if p.Tag != "" {
+				revel.Unbind(output, "tag", p.Tag)
+			}
+
+			if p.Order != "" {
+				revel.Unbind(output, "order", p.Order)
+			}
+
+		},
+	}
+
+)
 
 func init () {
 	revel.ERROR_CLASS = "has-error"
 
-	revel.TypeBinders[reflect.TypeOf(models.TagList{})] = TagListBinder
+	revel.TypeBinders[reflect.TypeOf(models.TagArray{})] = TagsBinder
+	revel.TypeBinders[reflect.TypeOf(models.Pagination{})] = PaginationBinder
 }
 
-type App struct {
-	Core
-}
-
-var DEFAULT_SIZE = 5
-
-func (c *App) Index (page models.PageState) revel.Result {
+func (c App) Index (page models.Pagination) revel.Result {
 
 	var savedAuthor string
 
@@ -43,99 +113,139 @@ func (c *App) Index (page models.PageState) revel.Result {
 		savedAuthor = author
 	}
 
-	if page.Page == 0 {
-		page.Page = 1
-	}
-
 	var size int
-	if page.Size > 0 {
-		size = page.Size
+
+	if page.Size == 0 {
+		size = VIEW_SIZE_DEFAULT
 	} else {
-		size = DEFAULT_SIZE
+		size = page.Size
 	}
 
-	page.Search = strings.TrimSpace(page.Search)
+	offset := size * (page.Page - 1)
 
-	entries, err := c.getEntries(models.PageState{
-			Page: page.Page, Size: size,
-			Tag: page.Tag, Search: page.Search,
-		},
-		models.DateRange{},
-	)
+
+	//TODO: select count(*) without limit clause to fix pagination bug (see below)
+	query := `
+		SELECT 
+			* 
+		FROM 
+			QdbView`
+
+	if page.Tag != "" {
+		query += `
+		WHERE QuoteId IN (
+			SELECT TagEntry.QuoteId FROM TagEntry
+			WHERE TagEntry.Tag = :tag
+		)`
+	} else {
+		query += `
+		WHERE 
+			Quote LIKE :search AND Tags LIKE :search`
+	}
+
+	query += `
+		ORDER BY
+			:order DESC
+		LIMIT
+			:offset, :size`
+
+	var entries []models.QdbView
+	_, err := c.Txn.Select(&entries, query, map[string]interface{}{
+		"search": "%"+page.Search+"%",
+		   "tag": page.Tag,
+		 "order": page.Order,
+		"offset": offset,
+		  "size": size,
+	})
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Print(err)
+		//TODO: redirect to error page
+		panic(err)
 	}
 
-	nextPage := page.Page + 1
-	prevPage := page.Page - 1
+	page.HasPrev = offset > 0
 
+	// BUG: if the query returns `size` exactly *before* limit constraint
+	// this erroneously sets true
+	page.HasNext = size == len(entries)
 
-	hasPrevPage := page.Page > 1
-	hasNextPage := len(entries) == size
-
-	return c.Render(entries, savedAuthor, page, hasPrevPage, prevPage, hasNextPage, nextPage)
+	return c.Render(entries, page, savedAuthor)
 }
 
-func (c *App) Post (entry models.QdbView, page models.PageState) revel.Result {
-
-	c.Validation.Required(entry.Quote)
-	c.Validation.Required(entry.Author)
+// post
+func (c *App) Post (quote models.QdbView, page models.Pagination) revel.Result {
+	quote.Validate(c.Validation)
 
 	if c.Validation.HasErrors() {
 		c.Validation.Keep()
 		c.FlashParams()
-		return c.Redirect(routes.App.Index(page))
+	} else {
+		err := c.insertView(&quote)
+
+		if err != nil {
+			c.Response.Status = http.StatusInternalServerError
+			revel.ERROR.Print(err)
+		}
 	}
 
-	err := c.insertView(&entry)
-
-	if err != nil {
-		c.Response.Status = http.StatusInternalServerError
-		return c.Redirect(routes.App.Index(page))
-	}
-
-	c.Session["author"] = entry.Author
+	c.Session["author"] = quote.Author
 
 	return c.Redirect(routes.App.Index(page))
 }
 
 func (c *App) One (id int) revel.Result {
-
-	var quote string
-	entry, err := c.getEntry(id);
+	obj, err := c.Txn.Get(models.QdbEntry{}, id)
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
-	} else {
-		if entry.QuoteId == 0 {
-			c.Response.Status = http.StatusNotFound
-			return Utf8Result(fmt.Sprintf("No such id: %d", id))
-		} else {
-			quote = entry.Quote
-		}
+		revel.ERROR.Print(err)
+		return Utf8Result(fmt.Sprint(err))
 	}
 
-	return Utf8Result(quote)
+	if obj == nil {
+		c.Response.Status = http.StatusNotFound
+		return Utf8Result(fmt.Sprintf("No such id: %d", id))
+	}
+
+	entry := obj.(*models.QdbEntry)
+
+	return Utf8Result(entry.Quote)
 }
 
-func (c *App) UpVote (id int, page models.PageState) revel.Result {
+func (c *App) UpVote (id int, page models.Pagination) revel.Result {
+	found, err := c.upVote(id)
 
-	_, err := c.upVote(id)
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Print(err)
+		//TODO: redirect to error page
+		return c.Redirect(routes.App.Index(page))
+	}
+
+	if !found {
+		c.Response.Status = http.StatusNotFound
+		//TODO: what to do?
 	}
 
 	return c.Redirect(routes.App.Index(page))
 }
 
-func (c *App) DownVote (id int, page models.PageState) revel.Result {
+func (c *App) DownVote (id int, page models.Pagination) revel.Result {
+	found, err := c.downVote(id)
 
-	_, err := c.downVote(id)
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Print(err)
+		//TODO: redirect to error page
+		return c.Redirect(routes.App.Index(page))
+	}
+
+	if !found {
+		c.Response.Status = http.StatusNotFound
+		//TODO: what to do?
 	}
 
 	return c.Redirect(routes.App.Index(page))
 }
-
