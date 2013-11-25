@@ -23,6 +23,26 @@ func Init() {
 
 	Dbm.TypeConverter = QdbTypeConverter{}
 
+	Dbm.Exec(`
+		CREATE VIEW QdbView AS
+			SELECT 
+				QdbEntry.*, IFNULL(G.Tags, "") AS Tags
+			FROM 
+				QdbEntry
+			LEFT JOIN
+				(
+					SELECT 
+						TagEntry.QuoteId,
+						GROUP_CONCAT(TagEntry.Tag, ',') AS Tags
+					FROM 
+						TagEntry
+					GROUP BY 
+						TagEntry.QuoteId
+				) AS G
+			ON
+				G.QuoteId = QdbEntry.QuoteId`,
+	)
+
 	Dbm.TraceOn("[gorp]", r.INFO)
 	Dbm.CreateTables()
 }

@@ -81,25 +81,14 @@ func (c *Core) getEntryById (id int) ([]models.QdbView, error) {
 	var entries []models.QdbView
 	_, err := c.Txn.Select(&entries, `
 		SELECT 
-			QdbEntry.*, IFNULL(G.Tags, "") AS Tags
+			*
 		FROM 
-			QdbEntry
-		LEFT JOIN
-			(
-				SELECT 
-					TagEntry.QuoteId,
-					GROUP_CONCAT(TagEntry.Tag, ',') AS Tags
-				FROM 
-					TagEntry
-				GROUP BY 
-					TagEntry.QuoteId
-			) AS G
-		ON
-			G.QuoteId = QdbEntry.QuoteId
+			QdbView
 		WHERE
-			QdbEntry.QuoteId = ?
+			QuoteId = ?
 		LIMIT 1
-		`, id)
+		`, id,
+	)
 
 	return entries, err
 }
@@ -121,25 +110,14 @@ func (c *Core) getEntries (page, size int, tag, search string) ([]models.QdbView
 
 	query := `
 		SELECT
-			QdbEntry.*, IFNULL(G.Tags, "") As Tags
+			*
 		FROM 
-			QdbEntry
-		LEFT JOIN (
-			SELECT 
-				TagEntry.QuoteId,
-				GROUP_CONCAT(TagEntry.Tag, ',') AS Tags
-			FROM 
-				TagEntry
-			GROUP BY 
-				TagEntry.QuoteId
-		) AS G
-		ON
-			G.QuoteId = QdbEntry.QuoteId `
+			QdbView`
 
 	if search != "" {
 		query += `
 		WHERE 
-			QdbEntry.Quote LIKE :search`
+			Quote LIKE :search`
 
 		params["search"] = "%"+search+"%"
 	}
@@ -154,7 +132,7 @@ func (c *Core) getEntries (page, size int, tag, search string) ([]models.QdbView
 		}
 
 		query += `
-			QdbEntry.QuoteId IN (
+			QuoteId IN (
 				SELECT 
 					TagEntry.QuoteId
 				FROM
