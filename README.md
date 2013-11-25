@@ -66,7 +66,7 @@ Quotes from *the current year*
 
 Year:
 
-	GET /api/2010/7/1
+	GET /api/2010
 
 Month:
 	
