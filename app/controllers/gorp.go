@@ -7,11 +7,51 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	r "github.com/robfig/revel"
 	"github.com/robfig/revel/modules/db/app"
+
+	"errors"
+	"strings"
 )
 
 var (
 	Dbm *gorp.DbMap
 )
+
+type QdbTypeConverter struct {}
+
+func (me QdbTypeConverter) ToDb (val interface{}) (interface{}, error) {
+	return val, nil
+}
+
+func (me QdbTypeConverter) FromDb (target interface{}) (gorp.CustomScanner, bool) {
+	switch target.(type) {
+
+		// split csv values from QdbView Tags column
+		case *models.TagArray:
+			binder := func (holder, target interface{}) error {
+				s, ok := holder.(*string)
+
+				if !ok {
+					return errors.New("FromDb: Unable to convert holder")
+				}
+
+				sl, ok := target.(*models.TagArray)
+
+				if !ok {
+					return errors.New("FromDb: Unable to convert target")
+				}
+
+				if *s == "" {
+					*sl = models.TagArray{}
+				} else {
+					*sl = strings.Split(*s, ",")
+				}
+				return nil
+			}
+			return gorp.CustomScanner{new(string), target, binder}, true
+		}
+
+	return gorp.CustomScanner{}, false
+}
 
 func Init() {
 	db.Init()
@@ -19,7 +59,7 @@ func Init() {
 
 	// t :=
 	Dbm.AddTable(models.QdbEntry{}).SetKeys(true, "QuoteId")
-	Dbm.AddTable(models.TagEntry{}).SetKeys(true, "TagId")
+	Dbm.AddTable(models.TagEntry{}).SetKeys(false, "QuoteId", "Tag") 
 
 	Dbm.TypeConverter = QdbTypeConverter{}
 

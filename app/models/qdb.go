@@ -23,7 +23,6 @@ func (q *QdbEntry) PreInsert (s gorp.SqlExecutor) error {
 
 // the tag entry table model
 type TagEntry struct {
-	TagId   int
 	QuoteId int
 	Tag     string
 }

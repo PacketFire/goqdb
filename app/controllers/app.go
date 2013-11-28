@@ -113,6 +113,35 @@ func (c App) Index (page models.Pagination) revel.Result {
 		savedAuthor = author
 	}
 
+	params := make(map[string]interface{})
+
+	params["search"] = "%"+page.Search+"%"
+	params["tag"]    = page.Tag
+	params["order"]  = page.Order
+
+	var where string
+
+	if page.Tag != "" {
+		where = `
+		WHERE QuoteId IN (
+			SELECT TagEntry.QuoteId FROM TagEntry
+			WHERE TagEntry.Tag = :tag
+		) `
+	} else {
+		where = ` WHERE Quote LIKE :search AND Tags LIKE :search `
+	}
+
+	where += ` ORDER BY :order DESC `
+
+	count, err := c.Txn.SelectInt(`SELECT COUNT(*) FROM QdbView ` + where, params)
+
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Print(err)
+		// TODO: redirect to error page
+		panic(err)
+	}
+
 	var size int
 
 	if page.Size == 0 {
@@ -123,40 +152,15 @@ func (c App) Index (page models.Pagination) revel.Result {
 
 	offset := size * (page.Page - 1)
 
-
-	//TODO: select count(*) without limit clause to fix pagination bug (see below)
-	query := `
-		SELECT 
-			* 
-		FROM 
-			QdbView`
-
-	if page.Tag != "" {
-		query += `
-		WHERE QuoteId IN (
-			SELECT TagEntry.QuoteId FROM TagEntry
-			WHERE TagEntry.Tag = :tag
-		)`
-	} else {
-		query += `
-		WHERE 
-			Quote LIKE :search AND Tags LIKE :search`
-	}
-
-	query += `
-		ORDER BY
-			:order DESC
-		LIMIT
-			:offset, :size`
+	params["offset"] = offset
+	params["size"]   = size
 
 	var entries []models.QdbView
-	_, err := c.Txn.Select(&entries, query, map[string]interface{}{
-		"search": "%"+page.Search+"%",
-		   "tag": page.Tag,
-		 "order": page.Order,
-		"offset": offset,
-		  "size": size,
-	})
+
+	_, err = c.Txn.Select(&entries,
+		`SELECT * FROM QdbView ` + where + ` LIMIT :offset, :size`,
+		params,
+	)
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
@@ -167,9 +171,7 @@ func (c App) Index (page models.Pagination) revel.Result {
 
 	page.HasPrev = offset > 0
 
-	// BUG: if the query returns `size` exactly *before* limit constraint
-	// this erroneously sets true
-	page.HasNext = size == len(entries)
+	page.HasNext = int64(offset + size) < count
 
 	return c.Render(entries, page, savedAuthor)
 }
@@ -187,6 +189,8 @@ func (c *App) Post (quote models.QdbView, page models.Pagination) revel.Result {
 		if err != nil {
 			c.Response.Status = http.StatusInternalServerError
 			revel.ERROR.Print(err)
+			//TODO: redirect to error page
+			panic(err)
 		}
 	}
 
