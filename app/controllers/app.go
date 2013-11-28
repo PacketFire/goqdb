@@ -128,7 +128,7 @@ func (c App) Index (page models.Pagination) revel.Result {
 			WHERE TagEntry.Tag = :tag
 		) `
 	} else {
-		where = ` WHERE Quote LIKE :search AND Tags LIKE :search `
+		where = ` WHERE Quote LIKE :search OR Tags LIKE :search `
 	}
 
 	where += ` ORDER BY :order DESC `

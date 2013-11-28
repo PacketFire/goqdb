@@ -88,7 +88,7 @@
 					">-</a>
 					<span>{{$e.Rating}}</span>
 					<a class="btn btn-success btn-xs btn-vote" role="button" href="/upvote?id={{$e.QuoteId}}
-						{{if $page.Search}}search={{$page.Search}}{{end}}
+						{{if $page.Search}}&search={{$page.Search}}{{end}}
 						{{if $page.Page}}&page={{$page.Page}}{{end}}
 						{{if $page.Size}}&size={{$page.Size}}{{end}}
 						{{if $page.Tag}}&tag={{$page.Tag}}{{end}}

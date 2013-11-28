@@ -59,11 +59,12 @@ func Init() {
 
 	// t :=
 	Dbm.AddTable(models.QdbEntry{}).SetKeys(true, "QuoteId")
-	Dbm.AddTable(models.TagEntry{}).SetKeys(false, "QuoteId", "Tag") 
+	Dbm.AddTable(models.TagEntry{}).SetKeys(false, "QuoteId", "Tag")
+	Dbm.CreateTables()
 
 	Dbm.TypeConverter = QdbTypeConverter{}
 
-	Dbm.Exec(`
+	_, err := Dbm.Exec(`
 		CREATE VIEW QdbView AS
 			SELECT 
 				QdbEntry.*, IFNULL(G.Tags, "") AS Tags
@@ -80,11 +81,14 @@ func Init() {
 						TagEntry.QuoteId
 				) AS G
 			ON
-				G.QuoteId = QdbEntry.QuoteId`,
+				G.QuoteId = QdbEntry.QuoteId;`,
 	)
 
+	if err != nil {
+		panic(err)
+	}
+
 	Dbm.TraceOn("[gorp]", r.INFO)
-	Dbm.CreateTables()
 }
 
 type GorpController struct {
