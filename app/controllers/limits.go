@@ -25,5 +25,9 @@ var (
 
 	// form input tag delimiter
 	INPUT_TAG_DELIM = " "
+
+	// max number of entries displayed in the tag cloud
+	TAG_CLOUD_MAX = 10
+
 )
 

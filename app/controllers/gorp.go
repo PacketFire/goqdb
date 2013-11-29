@@ -56,39 +56,44 @@ func (me QdbTypeConverter) FromDb (target interface{}) (gorp.CustomScanner, bool
 func Init() {
 	db.Init()
 	Dbm = &gorp.DbMap{Db: db.Db, Dialect: gorp.SqliteDialect{}}
+	Dbm.TraceOn("[gorp]", r.INFO)
 
-	// t :=
 	Dbm.AddTable(models.QdbEntry{}).SetKeys(true, "QuoteId")
+
 	Dbm.AddTable(models.TagEntry{}).SetKeys(false, "QuoteId", "Tag")
+
 	Dbm.CreateTables()
 
 	Dbm.TypeConverter = QdbTypeConverter{}
 
-	_, err := Dbm.Exec(`
+	Dbm.Exec(`
 		CREATE VIEW QdbView AS
-			SELECT 
-				QdbEntry.*, IFNULL(G.Tags, "") AS Tags
-			FROM 
-				QdbEntry
-			LEFT JOIN
-				(
-					SELECT 
-						TagEntry.QuoteId,
-						GROUP_CONCAT(TagEntry.Tag, ',') AS Tags
-					FROM 
-						TagEntry
-					GROUP BY 
-						TagEntry.QuoteId
-				) AS G
-			ON
-				G.QuoteId = QdbEntry.QuoteId;`,
+			SELECT QdbEntry.*, IFNULL(G.Tags, "") AS Tags
+			FROM QdbEntry
+			LEFT JOIN (
+				SELECT TagEntry.QuoteId,
+				       GROUP_CONCAT(TagEntry.Tag, ',') AS Tags
+				FROM TagEntry
+				GROUP BY TagEntry.QuoteId
+			) AS G
+			ON G.QuoteId = QdbEntry.QuoteId`,
 	)
 
-	if err != nil {
-		panic(err)
-	}
-
-	Dbm.TraceOn("[gorp]", r.INFO)
+	// TagCloud is a representation of the most common tags of the most recent entries
+	Dbm.Exec(`
+		CREATE VIEW TagCloud AS
+			SELECT TagEntry.Tag
+			FROM TagEntry
+			LEFT JOIN (
+				SELECT QuoteId
+				FROM QdbEntry
+				ORDER BY Created DESC
+				LIMIT 50
+			) AS G
+			ON G.QuoteId = TagEntry.QuoteId
+			GROUP BY TagEntry.Tag
+			ORDER BY count(TagEntry.Tag) DESC`,
+	)
 }
 
 type GorpController struct {

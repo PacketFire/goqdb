@@ -43,12 +43,17 @@
 		<button class="btn btn-primary" type=""><span class="glyphicon glyphicon-search"></span></button>
 	</form>
 
+	<!-- tag cloud -->
+	<p id="tagcloud" class="">
+	{{range $t := .tagcloud}}
+		<a href="?tag={{$t}}">{{$t}}</a>
+	{{end}}
+	</p>
 	<br/>
 
-	<!-- tag cloud -->
 
 	<div id="pageLinks" class="clearfix">
-		<a class="btn btn-default fLeft" {{if eq .page.HasPrev false}}disabled="disabled"{{end}} 
+		<a class="btn btn-default pull-left" {{if eq .page.HasPrev false}}disabled="disabled"{{end}} 
 			href="?page={{.page.PrevPage}}
 				{{if .page.Search}}&search={{.page.Search}}{{end}}
 				{{if .page.Size}}&size={{.page.Size}}{{end}}
@@ -56,7 +61,7 @@
 		">
 			prev
 		</a>
-		<a class="btn btn-default fRight" {{if eq .page.HasNext false}}disabled="disabled"{{end}} 
+		<a class="btn btn-default pull-right" {{if eq .page.HasNext false}}disabled="disabled"{{end}} 
 			href="?page={{.page.NextPage}}
 				{{if .page.Search}}&search={{.page.Search}}{{end}}
 				{{if .page.Size}}&size={{.page.Size}}{{end}}
@@ -99,7 +104,7 @@
 			<a class="quote" href="/q/{{$e.QuoteId}}">
 				<pre class="">{{$e.Clip}}</pre>
 			</a>
-			<p class="">tags:
+			<p class="text-info">
 			{{range $t := $e.Tags}}
 				<a href="?tag={{$t}}">{{$t}}</a>
 			{{end}}

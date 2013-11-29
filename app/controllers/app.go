@@ -173,7 +173,20 @@ func (c App) Index (page models.Pagination) revel.Result {
 
 	page.HasNext = int64(offset + size) < count
 
-	return c.Render(entries, page, savedAuthor)
+	//var tagcloud []models.TagCloud
+	var tagcloud []string
+
+	_, err = c.Txn.Select(&tagcloud,
+		`SELECT Tag From TagCloud LIMIT ?`, TAG_CLOUD_MAX)
+
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Print(err)
+		//TODO: redirect to error page
+		panic(err)
+	}
+
+	return c.Render(entries, page, tagcloud, savedAuthor)
 }
 
 // post
