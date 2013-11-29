@@ -23,9 +23,14 @@ var (
 	TagDelim = " "
 
 	// order input -> order column
-	OrderBy = map[string]string{
-		"created": " ORDER BY Created DESC ",
-		"rating":  " ORDER BY Rating DESC ",
+	OrderCol = map[string]string{
+		"created": "Created",
+		"rating":  "Rating",
+	}
+
+	OrderDir = map[string]string{
+		"asc": "ASC",
+		"desc": "DESC",
 	}
 
 	// form input "c"sv tags binder
@@ -66,6 +71,9 @@ var (
 
 			params.Bind(&p.Order, "order")
 			p.Order = strings.TrimSpace(p.Order)
+
+			params.Bind(&p.OrderDir, "dir")
+			p.OrderDir = strings.TrimSpace(p.OrderDir)
 
 			p.HasNext = false
 			p.HasPrev = false
@@ -140,12 +148,18 @@ func (c App) Index (page models.Pagination) revel.Result {
 		panic(err)
 	}
 
-	var order string
+	order := " ORDER BY"
 
 	if page.Order == "" {
-		order = OrderBy["created"]
+		order += " " + OrderCol["created"]
 	} else {
-		order = OrderBy[page.Order]
+		order += " " + OrderCol[page.Order]
+	}
+
+	if page.OrderDir == "" {
+		order += " " + OrderDir["desc"]
+	} else {
+		order += " " + OrderDir[page.OrderDir]
 	}
 
 	var size int
@@ -164,7 +178,7 @@ func (c App) Index (page models.Pagination) revel.Result {
 	var entries []models.QdbView
 
 	_, err = c.Txn.Select(&entries,
-		`SELECT * FROM QdbView ` + where + order + `LIMIT :offset, :size`,
+		`SELECT * FROM QdbView ` + where + " " + order + " " + `LIMIT :offset, :size`,
 		params,
 	)
 

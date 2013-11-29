@@ -36,19 +36,49 @@
 		</div>
 	</form>
 
-	<form class="form-inline" role="form" method="get" action="">
-		<div class="form-group">
-			<input class="form-control" type="search" id="search" name="search" value="{{.page.Search}}" placeholder="search" />
-		</div>
-		<button class="btn btn-primary" type=""><span class="glyphicon glyphicon-search"></span></button>
-	</form>
+		<form class="form-inline" role="form" method="get" action="">
+			<div class="form-group">
+				<input class="form-control" type="search" id="search" name="search" value="{{.page.Search}}" placeholder="search" />
+			</div>
+		
+			<div class="form-group">
+			<select name="order" class="form-control">
+				<option value="created">Date</option>
+				<option value="rating">Rating</option>
+			</select>
+			</div>
 
-	<!-- tag cloud -->
-	<p id="tagcloud" class="">
+			
+			<button class="btn btn-primary" type=""><span class="glyphicon glyphicon-search"></span></button>
+		</form>
+
+	<div class="text-right">
+		<a href="?dir=desc
+			{{if .page.Search}}&search={{.page.Search}}{{end}}
+			{{if .page.Page}}&page={{.page.Page}}{{end}}
+			{{if .page.Size}}&size={{.page.Size}}{{end}}
+			{{if .page.Tag}}&tag={{.page.Tag}}{{end}}
+			{{if .page.Order}}&order={{.page.Order}}{{end}}
+			
+		">
+			<span class="glyphicon glyphicon-chevron-up"></span>
+		</a>
+		<a href="?dir=asc	
+			{{if .page.Search}}&search={{.page.Search}}{{end}}
+			{{if .page.Page}}&page={{.page.Page}}{{end}}
+			{{if .page.Size}}&size={{.page.Size}}{{end}}
+			{{if .page.Tag}}&tag={{.page.Tag}}{{end}}
+			{{if .page.Order}}&order={{.page.Order}}{{end}}
+		">
+			<span class="glyphicon glyphicon-chevron-down"></span>
+		</a>
+	</div>
+
+	<div id="tagcloud">
 	{{range $t := .tagcloud}}
 		<a href="?tag={{$t}}">{{$t}}</a>
 	{{end}}
-	</p>
+	</div>
 	<br/>
 
 
@@ -58,6 +88,7 @@
 				{{if .page.Search}}&search={{.page.Search}}{{end}}
 				{{if .page.Size}}&size={{.page.Size}}{{end}}
 				{{if .page.Tag}}&tag={{.page.Tag}}{{end}}
+				{{if .page.Order}}&order={{.page.Order}}{{end}}
 		">
 			prev
 		</a>
@@ -66,6 +97,7 @@
 				{{if .page.Search}}&search={{.page.Search}}{{end}}
 				{{if .page.Size}}&size={{.page.Size}}{{end}}
 				{{if .page.Tag}}&tag={{.page.Tag}}{{end}}
+				{{if .page.Order}}&order={{.page.Order}}{{end}}
 		">
 			next
 		</a>
@@ -89,6 +121,7 @@
 						{{if $page.Page}}&page={{$page.Page}}{{end}}
 						{{if $page.Size}}&size={{$page.Size}}{{end}}
 						{{if $page.Tag}}&tag={{$page.Tag}}{{end}}
+						{{if $page.Order}}&order={{$page.Order}}{{end}}
 						#q{{$e.QuoteId}}
 					">-</a>
 					<span>{{$e.Rating}}</span>
@@ -97,10 +130,12 @@
 						{{if $page.Page}}&page={{$page.Page}}{{end}}
 						{{if $page.Size}}&size={{$page.Size}}{{end}}
 						{{if $page.Tag}}&tag={{$page.Tag}}{{end}}
+						{{if $page.Order}}&order={{$page.Order}}{{end}}
 						#q{{$e.QuoteId}}
 					">+</a>
 				</div>
 			</header>
+			<!-- TODO: could use a `well' class instead -->
 			<a class="quote" href="/q/{{$e.QuoteId}}">
 				<pre class="">{{$e.Clip}}</pre>
 			</a>

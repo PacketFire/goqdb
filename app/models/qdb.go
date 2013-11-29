@@ -76,6 +76,7 @@ type Pagination struct {
 	HasPrev bool
 
 	Order string
+	OrderDir string
 }
 
 func (p Pagination) NextPage () int {
