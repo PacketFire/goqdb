@@ -79,12 +79,40 @@ type Pagination struct {
 	OrderDir string
 }
 
-func (p Pagination) NextPage () int {
-	return p.Page + 1
+func (p Pagination) NextPage () Pagination {
+	t := p
+	t.Page += 1
+	return t
 }
 
-func (p Pagination) PrevPage () int {
-	return p.Page - 1
+func (p Pagination) PrevPage () Pagination {
+	t := p
+	t.Page -= 1
+	return t
+}
+
+func (p Pagination) OrderByDate () Pagination {
+	t := p
+	t.Order = ""
+	return t
+}
+
+func (p Pagination) OrderByRating () Pagination {
+	t := p
+	t.Order = "rating"
+	return t
+}
+
+func (p Pagination) OrderDesc () Pagination {
+	t := p
+	t.OrderDir = ""
+	return t
+}
+
+func (p Pagination) OrderAsc () Pagination {
+	t := p
+	t.OrderDir = "asc"
+	return t
 }
 
 type DateRange struct {

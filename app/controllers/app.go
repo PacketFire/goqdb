@@ -24,7 +24,7 @@ var (
 
 	// order input -> order column
 	OrderCol = map[string]string{
-		"created": "Created",
+		"date": "Created",
 		"rating":  "Rating",
 	}
 
@@ -86,9 +86,11 @@ var (
 			if p.Page != 0 {
 				revel.Unbind(output, "page", p.Page)
 			}
-			if p.Size != 0 {
+
+			if p.Size != 0 && p.Size != VIEW_SIZE_DEFAULT {
 				revel.Unbind(output, "size", p.Size)
 			}
+
 			if p.Search != "" {
 				revel.Unbind(output, "search", p.Search)
 			}
@@ -97,8 +99,12 @@ var (
 				revel.Unbind(output, "tag", p.Tag)
 			}
 
-			if p.Order != "" {
+			if p.Order != "" && p.Order != "date" {
 				revel.Unbind(output, "order", p.Order)
+			}
+
+			if p.OrderDir != "" && p.OrderDir != "desc" {
+				revel.Unbind(output, "dir", p.OrderDir)
 			}
 
 		},
@@ -150,16 +156,18 @@ func (c App) Index (page models.Pagination) revel.Result {
 
 	order := " ORDER BY"
 
-	if page.Order == "" {
-		order += " " + OrderCol["created"]
+	if col, ok := OrderCol[page.Order]; ok {
+		order += " " + col
 	} else {
-		order += " " + OrderCol[page.Order]
+		order += " " + OrderCol["date"]
+		page.Order = ""
 	}
 
-	if page.OrderDir == "" {
-		order += " " + OrderDir["desc"]
+	if dir, ok := OrderDir[page.OrderDir]; ok {
+		order += " " + dir
 	} else {
-		order += " " + OrderDir[page.OrderDir]
+		order += " " + OrderDir["desc"]
+		page.OrderDir = ""
 	}
 
 	var size int

@@ -4,6 +4,7 @@
 	<head>
 	<title>{{.title}}</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="shortcut icon" type="image/png" href="/public/img/favicon.png">
 	<script src="/public/js/jquery-1.9.1.min.js" type="text/javascript" charset="utf-8"></script>
@@ -15,10 +16,11 @@
 	{{end}}
 	<style type="text/css">
 	#main {
-		width: 50%;
-		margin: 0 auto;
+		width: 65%;
+		display: block;
+		margin-left: auto;
+		margin-right: auto;
 	}
-
 	textarea {
 		width: 100%;
 		display: block;
@@ -56,6 +58,14 @@
 	.quote_entry .quote_rating {
 	}
 */
+	a.disabled {
+		color: #AAA
+	}
+
+	a.disabled {
+		text-decoration: none
+	}
+
 	.quoteList article header,
 	.quoteList article header div { padding: 0; }
 
