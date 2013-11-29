@@ -77,7 +77,7 @@
 
 	<div class="clearfix quoteList">
 	{{range $e := .entries}}
-		<article>
+		<article id="q{{$e.QuoteId}}">
 			<header class="container">
 				<div class="col-xs-8">
 					<p class="text-info">{{$e.Author}} &mdash; {{$e.Time}}</p>
