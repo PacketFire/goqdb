@@ -23,9 +23,9 @@ var (
 	TagDelim = " "
 
 	// order input -> order column
-	Orders = map[string]string{
-		"created": "Created",
-		"rating":  "Rating",
+	OrderBy = map[string]string{
+		"created": " ORDER BY Created DESC ",
+		"rating":  " ORDER BY Rating DESC ",
 	}
 
 	// form input "c"sv tags binder
@@ -117,7 +117,6 @@ func (c App) Index (page models.Pagination) revel.Result {
 
 	params["search"] = "%"+page.Search+"%"
 	params["tag"]    = page.Tag
-	params["order"]  = page.Order
 
 	var where string
 
@@ -131,7 +130,6 @@ func (c App) Index (page models.Pagination) revel.Result {
 		where = ` WHERE Quote LIKE :search OR Tags LIKE :search `
 	}
 
-	where += ` ORDER BY :order DESC `
 
 	count, err := c.Txn.SelectInt(`SELECT COUNT(*) FROM QdbView ` + where, params)
 
@@ -140,6 +138,14 @@ func (c App) Index (page models.Pagination) revel.Result {
 		revel.ERROR.Print(err)
 		// TODO: redirect to error page
 		panic(err)
+	}
+
+	var order string
+
+	if page.Order == "" {
+		order = OrderBy["created"]
+	} else {
+		order = OrderBy[page.Order]
 	}
 
 	var size int
@@ -158,7 +164,7 @@ func (c App) Index (page models.Pagination) revel.Result {
 	var entries []models.QdbView
 
 	_, err = c.Txn.Select(&entries,
-		`SELECT * FROM QdbView ` + where + ` LIMIT :offset, :size`,
+		`SELECT * FROM QdbView ` + where + order + `LIMIT :offset, :size`,
 		params,
 	)
 
