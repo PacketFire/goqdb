@@ -6,6 +6,7 @@ import (
 	"github.com/PacketFire/goqdb/app/models"
 	"strings"
 	_"errors"
+	"fmt"
 )
 
 // TODO: implement form input limit hints so that truncation is less silent
@@ -15,34 +16,29 @@ import (
 // TagArray insertion helper, also does truncation
 func (c *GorpController) insertTagArray (parent int, tags models.TagArray) error {
 
+	var t []interface{}
+
 	for i := range tags {
-		// delete entries that are too long
-		if len(tags[i]) > INPUT_TAG_MAX {
-			tags = append(tags[:i-1], tags[i+1:]...)
-		} else {
-			tags[i] = strings.TrimSpace(tags[i])
+		// skip entries that are too long or empty
+		if n := len(tags[i]); n < INPUT_TAG_MAX && n > 0 {
+			t = append(t,
+				interface{}(strings.TrimSpace(tags[i])),
+			)
+		}
+
+		if i > INPUT_TAG_LIST_MAX {
+			break
 		}
 	}
 
-	if len(tags) > INPUT_TAG_LIST_MAX {
-		tags = tags[:INPUT_TAG_LIST_MAX]
+	if len(t) == 0 {
+		return nil
 	}
 
-	var entries []interface{}
-	var values string
+	s := fmt.Sprintf("(%d, ?)", parent)
+	s += strings.Repeat(", " + s, len(t) - 1)
 
-	for i := range tags {
-		entries = append(entries, parent)
-		entries = append(entries, tags[i])
-
-		values += " (?, ?)"
-
-		if i < len(tags) - 1 {
-			values += ","
-		}
-	}
-
-	_, err := c.Txn.Exec(`INSERT OR IGNORE INTO TagEntry VALUES ` +  values, entries...)
+	_, err := c.Txn.Exec(`INSERT OR IGNORE INTO TagEntry VALUES ` +  s, t...)
 	return err
 }
 

@@ -51,13 +51,13 @@ var (
 		Bind: func (params *revel.Params, name string, typ reflect.Type) reflect.Value {
 			var p models.Pagination
 
-			params.Bind(&p.Page,   "page")
+			params.Bind(&p.Page, "page")
 
 			if p.Page == 0 {
 				p.Page = 1
 			}
 
-			params.Bind(&p.Size,   "size")
+			params.Bind(&p.Size, "size")
 
 			if p.Size != 0 && p.Size > VIEW_SIZE_MAX {
 				p.Size = VIEW_SIZE_DEFAULT
@@ -83,7 +83,7 @@ var (
 		Unbind: func (output map[string]string, key string, val interface{}) {
 			p := val.(models.Pagination)
 
-			if p.Page != 0 {
+			if p.Page != 0 && p.Page != 1 {
 				revel.Unbind(output, "page", p.Page)
 			}
 
