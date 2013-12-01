@@ -24,13 +24,9 @@ var (
 
 	// order input -> order column
 	OrderCol = map[string]string{
-		"date": "Created",
-		"rating":  "Rating",
-	}
-
-	OrderDir = map[string]string{
-		"asc": "ASC",
-		"desc": "DESC",
+		     "date": "Created",
+		   "rating": `Rating`,
+		"relevance": `LIKE "%:search", LIKE "%:search%"`,
 	}
 
 	// form input "c"sv tags binder
@@ -72,8 +68,7 @@ var (
 			params.Bind(&p.Order, "order")
 			p.Order = strings.TrimSpace(p.Order)
 
-			params.Bind(&p.OrderDir, "dir")
-			p.OrderDir = strings.TrimSpace(p.OrderDir)
+			params.Bind(&p.Asc, "asc")
 
 			p.HasNext = false
 			p.HasPrev = false
@@ -103,8 +98,8 @@ var (
 				revel.Unbind(output, "order", p.Order)
 			}
 
-			if p.OrderDir != "" && p.OrderDir != "desc" {
-				revel.Unbind(output, "dir", p.OrderDir)
+			if p.Asc {
+				revel.Unbind(output, "asc", p.Asc)
 			}
 
 		},
@@ -154,20 +149,19 @@ func (c App) Index (page models.Pagination) revel.Result {
 		panic(err)
 	}
 
-	order := " ORDER BY"
+	order := ` ORDER BY `
 
 	if col, ok := OrderCol[page.Order]; ok {
-		order += " " + col
+		order += col
 	} else {
-		order += " " + OrderCol["date"]
+		order += OrderCol["date"]
 		page.Order = ""
 	}
 
-	if dir, ok := OrderDir[page.OrderDir]; ok {
-		order += " " + dir
+	if page.Asc {
+		order += ` ASC `
 	} else {
-		order += " " + OrderDir["desc"]
-		page.OrderDir = ""
+		order += ` DESC `
 	}
 
 	var size int
@@ -186,7 +180,7 @@ func (c App) Index (page models.Pagination) revel.Result {
 	var entries []models.QdbView
 
 	_, err = c.Txn.Select(&entries,
-		`SELECT * FROM QdbView ` + where + " " + order + " " + `LIMIT :offset, :size`,
+		`SELECT * FROM QdbView ` + where + ` ` + order + ` LIMIT :offset, :size`,
 		params,
 	)
 
@@ -201,7 +195,6 @@ func (c App) Index (page models.Pagination) revel.Result {
 
 	page.HasNext = int64(offset + size) < count
 
-	//var tagcloud []models.TagCloud
 	var tagcloud []string
 
 	_, err = c.Txn.Select(&tagcloud,

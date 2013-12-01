@@ -1,4 +1,3 @@
-<!-- see PaginationBinder.Unbind -->
 <div class="clearfix" style="margin-bottom: 10px">
 	
 	<a href="{{url "App.Index" .page.PrevPage}}" class="{{if eq .page.HasPrev false}}disabled {{end}}pull-left btn btn-default">prev</a>
@@ -17,10 +16,10 @@
 			&nbsp;
 			<!-- TODO: order direction could just be a bool "asc" toggle -->
 			<a 
-				href="{{if eq .page.OrderDir ""}}
-					{{url "App.Index" .page.OrderAsc}}
+				href="{{if eq .page.Asc false}}
+					{{url "App.Index" .page.SortAsc}}
 				{{else}}
-					{{url "App.Index" .page.OrderDesc}}
+					{{url "App.Index" .page.SortDesc}}
 				{{end}}"
 			><span class="glyphicon glyphicon-sort"></span></a>
 		</div>

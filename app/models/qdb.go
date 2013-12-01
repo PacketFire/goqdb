@@ -76,43 +76,38 @@ type Pagination struct {
 	HasPrev bool
 
 	Order string
-	OrderDir string
+//	OrderDir string
+	Asc bool
 }
 
 func (p Pagination) NextPage () Pagination {
-	t := p
-	t.Page += 1
-	return t
+	p.Page += 1
+	return p
 }
 
 func (p Pagination) PrevPage () Pagination {
-	t := p
-	t.Page -= 1
-	return t
+	p.Page -= 1
+	return p
 }
 
 func (p Pagination) OrderByDate () Pagination {
-	t := p
-	t.Order = ""
-	return t
+	p.Order = ""
+	return p
 }
 
 func (p Pagination) OrderByRating () Pagination {
-	t := p
-	t.Order = "rating"
-	return t
+	p.Order = "rating"
+	return p
 }
 
-func (p Pagination) OrderDesc () Pagination {
-	t := p
-	t.OrderDir = ""
-	return t
+func (p Pagination) SortDesc () Pagination {
+	p.Asc = false
+	return p
 }
 
-func (p Pagination) OrderAsc () Pagination {
-	t := p
-	t.OrderDir = "asc"
-	return t
+func (p Pagination) SortAsc () Pagination {
+	p.Asc = true
+	return p
 }
 
 type DateRange struct {
