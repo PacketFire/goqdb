@@ -19,14 +19,15 @@ type App struct {
 
 
 var (
-	// form input tag delimiter
-	TagDelim = " "
-
 	// order input -> order column
 	OrderCol = map[string]string{
 		     "date": "Created",
 		   "rating": `Rating`,
-		"relevance": `LIKE "%:search", LIKE "%:search%"`,
+		"relevance": ` CASE ` +
+			` WHEN Quote LIKE :search_leading THEN 0 ` +
+			` WHEN Quote LIKE :search THEN 1 ` +
+			` WHEN Tags LIKE :search THEN 2 ` +
+			` ELSE 3 END `,
 	}
 
 	// form input "c"sv tags binder
@@ -36,7 +37,7 @@ var (
 			if len(val) == 0 {
 				return reflect.Zero(typ)
 			}
-			s := strings.Split(val, TagDelim)
+			s := strings.Split(val, INPUT_TAG_DELIM)
 
 			return reflect.ValueOf(s)
 		}),
@@ -125,6 +126,7 @@ func (c App) Index (page models.Pagination) revel.Result {
 	params := make(map[string]interface{})
 
 	params["search"] = "%"+page.Search+"%"
+	params["search_leading"] = page.Search+"%"
 	params["tag"]    = page.Tag
 
 	var where string

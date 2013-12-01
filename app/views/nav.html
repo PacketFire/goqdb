@@ -6,13 +6,43 @@
 		<form role="search" class="form-inline col-lg-6" metho="get">
 			<div class="form-group">
 				<input name="search" type="text" class="form-control" placeholder="search" />
+				<input name="order" type="hidden" value="relevance" />
+				<input name="asc" type="hidden" value="true" />
 			</div>
 			<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
 		</form>
-		<div class="col-lg-4" style="padding: 6px">
-			<a {{if eq .page.Order ""}}href="{{url "App.Index" .page.OrderByRating}}"{{else}}class="disabled"{{end}}>Rating</a>
+		<div class="col-lg-6" style="padding: 6px">
+			<a 
+				{{if eq .page.Order "date"}}
+					href=""
+				{{else}}
+					{{if eq .page.Order ""}}
+					href=""
+					{{else}}
+					href="{{url "App.Index" .page.OrderByDate}}"
+					{{end}}
+				{{end}}
+			>Date</a>
 			 / 
-			<a {{if eq .page.Order "rating"}}href="{{url "App.Index" .page.OrderByDate}}"{{else}}class="disabled"{{end}}>Date</a>
+			<a 
+				{{if eq .page.Order "rating"}}
+					href=""
+				{{else}}
+					href="{{url "App.Index" .page.OrderByRating}}"
+				{{end}}
+			>Rating</a>
+			 / 
+			<a
+				{{if eq .page.Order "relevance"}}
+					href=""
+				{{else}}
+					{{if eq .page.Search ""}}
+					href=""
+					{{else}}
+					href="{{url "App.Index" .page.OrderByRelevance}}"
+					{{end}}
+				{{end}}
+			>Relevance</a>
 			&nbsp;
 			<!-- TODO: order direction could just be a bool "asc" toggle -->
 			<a 

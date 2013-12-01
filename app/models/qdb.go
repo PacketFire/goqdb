@@ -76,7 +76,6 @@ type Pagination struct {
 	HasPrev bool
 
 	Order string
-//	OrderDir string
 	Asc bool
 }
 
@@ -97,6 +96,11 @@ func (p Pagination) OrderByDate () Pagination {
 
 func (p Pagination) OrderByRating () Pagination {
 	p.Order = "rating"
+	return p
+}
+
+func (p Pagination) OrderByRelevance () Pagination {
+	p.Order = "relevance"
 	return p
 }
 
