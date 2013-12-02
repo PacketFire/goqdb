@@ -89,19 +89,37 @@ func (p Pagination) PrevPage () Pagination {
 	return p
 }
 
-func (p Pagination) OrderByDate () Pagination {
-	p.Order = ""
-	return p
+func (p Pagination) OrderByDate () *Pagination {
+	var r *Pagination
+	if p.Order != "date" && p.Order != "" {
+		p.Order = "" // p.Order = "date"
+		r = &p
+	} else {
+		r = nil
+	}
+	return r
 }
 
-func (p Pagination) OrderByRating () Pagination {
-	p.Order = "rating"
-	return p
+func (p Pagination) OrderByRating () *Pagination {
+	var r *Pagination
+	if p.Order != "rating" {
+		p.Order = "rating"
+		r = &p
+	} else {
+		r = nil
+	}
+	return r
 }
 
-func (p Pagination) OrderByRelevance () Pagination {
-	p.Order = "relevance"
-	return p
+func (p Pagination) OrderByRelevance () *Pagination {
+	var r *Pagination
+	if p.Order != "relevance" && p.Search != "" {
+		p.Order = "relevance"
+		r = &p
+	} else {
+		r = nil
+	}
+	return r
 }
 
 func (p Pagination) SortDesc () Pagination {

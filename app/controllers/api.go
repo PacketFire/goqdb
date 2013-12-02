@@ -19,7 +19,6 @@ type Api struct {
 }
 
 var (
-// binders
 
 	// date range binder
 	RangeBinder = revel.Binder{
@@ -88,7 +87,6 @@ func (c *Api) Index (R models.DateRange) revel.Result {
 
 	query += ` LIMIT :max `
 
-
 	_, err := c.Txn.Select(&entries, query, params)
 
 	if err != nil {
@@ -127,7 +125,6 @@ func (c *Api) Post () revel.Result {
 
 	c.Response.Status = http.StatusCreated
 
-//	return c.RenderJson(quote)
 	return c.Redirect(routes.Api.One(quote.QuoteId))
 }
 

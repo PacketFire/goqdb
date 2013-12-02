@@ -21,8 +21,8 @@ type App struct {
 var (
 	// order input -> order column
 	OrderCol = map[string]string{
-		     "date": "Created",
-		   "rating": `Rating`,
+		     "date": ` Created `,
+		   "rating": ` Rating `,
 		"relevance": ` CASE ` +
 			` WHEN Quote LIKE :search_leading THEN 0 ` +
 			` WHEN Quote LIKE :search THEN 1 ` +

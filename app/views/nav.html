@@ -13,35 +13,15 @@
 		</form>
 		<div class="col-lg-6" style="padding: 6px">
 			<a 
-				{{if eq .page.Order "date"}}
-					href=""
-				{{else}}
-					{{if eq .page.Order ""}}
-					href=""
-					{{else}}
-					href="{{url "App.Index" .page.OrderByDate}}"
-					{{end}}
-				{{end}}
+				href="{{with $p := .page.OrderByDate}}{{url "App.Index" $p}}{{end}}"
 			>Date</a>
 			 / 
 			<a 
-				{{if eq .page.Order "rating"}}
-					href=""
-				{{else}}
-					href="{{url "App.Index" .page.OrderByRating}}"
-				{{end}}
+				href="{{with $p := .page.OrderByRating}}{{url "App.Index" $p}}{{end}}"
 			>Rating</a>
 			 / 
 			<a
-				{{if eq .page.Order "relevance"}}
-					href=""
-				{{else}}
-					{{if eq .page.Search ""}}
-					href=""
-					{{else}}
-					href="{{url "App.Index" .page.OrderByRelevance}}"
-					{{end}}
-				{{end}}
+				href="{{with $p := .page.OrderByRelevance}}{{url "App.Index" $p}}{{end}}"
 			>Relevance</a>
 			&nbsp;
 			<!-- TODO: order direction could just be a bool "asc" toggle -->
@@ -56,5 +36,5 @@
 	</div>	
 
 	<a href="{{url "App.Index" .page.NextPage}}" class="{{if eq .page.HasNext false}}disabled {{end}}pull-right btn btn-default">next</a>
-		
 </div>
+
