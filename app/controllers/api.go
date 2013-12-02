@@ -33,7 +33,7 @@ var (
 			var r models.DateRange
 
 			if Y == 0 {
-				Y = time.Now().Year()
+				return reflect.Zero(typ)
 			}
 
 			toUnix := func (Y, m, d int) int64 {
@@ -71,23 +71,25 @@ func init () {
 func (c *Api) Index (R models.DateRange) revel.Result {
 
 	params := make(map[string]interface{})
-
-	params["lower"] = R.Lower
-	params["upper"] = R.Upper
 	params["max"] = VIEW_SIZE_MAX
 
-	var entries []models.QdbView
+	query := `SELECT * FROM QdbView `
 
-	_, err := c.Txn.Select(&entries, `
-		SELECT 
-			* 
-		FROM 
-			QdbView
-		WHERE
-			Created BETWEEN :lower AND :upper
-		LIMIT :max`,
-		params,
-	)
+	var entries []models.QdbView
+	if R.Lower == 0 {
+		query += ` ORDER BY Rating DESC `
+	} else {
+
+		params["lower"] = R.Lower
+		params["upper"] = R.Upper
+
+		query += ` WHERE Created BETWEEN :lower AND :upper `
+	}
+
+	query += ` LIMIT :max `
+
+
+	_, err := c.Txn.Select(&entries, query, params)
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
@@ -145,6 +147,18 @@ func (c *Api) One (id int) revel.Result {
 
 	entry := obj.(*models.QdbEntry)
 	return c.RenderJson(entry)
+}
+
+func (c *Api) Total () revel.Result {
+	total, err := c.Txn.SelectInt(`SELECT COUNT(*) FROM QdbView`)
+
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Print(err)
+		return c.RenderJson(err)
+	}
+
+	return c.RenderJson(total)
 }
 
 func (c *Api) UpVote (id int) revel.Result {

@@ -21,6 +21,8 @@ GET     /public/*filepath                       Static.Serve("public")
 #
 GET	/api/v0/:id/view			Api.One
 
+GET	/api/v0/total				Api.Total
+
 GET	/api/v0/				Api.Index
 GET 	/api/v0/:Y				Api.Index
 GET	/api/v0/:Y/:m				Api.Index
