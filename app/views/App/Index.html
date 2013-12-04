@@ -1,13 +1,57 @@
 {{set . "title" "QDB"}}
 {{template "header.html" .}}
 
-<div id="main">
-	<header>
-		<a href="/"><h1 class="h3">QDB</h1></a>
-	</header>
-	
-	<br/>
+<nav role="navigation">
 
+	<ul>
+		<li>
+			<header>
+				<a href="/">
+					<h1>
+					QDB
+					</h1>
+				</a>
+			</header>
+		</li>
+		<li>
+			<form role="search" class="form-inline" method="get">
+				<input name="order" type="hidden" value="relevance" />
+				<input name="asc" type="hidden" value="true" />
+			{{with $s := .page.Size}}
+				<input name="size" type="hidden" value="{{$s}}" />
+			{{end}}
+				<div class="form-group">
+					<label class="sr-only" for="search">Search</label>
+					<input name="search" id="search" type="text" class="form-control" placeholder="search" />
+				</div>
+				<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
+			</form>
+		</li>
+		<li>
+			<a href="{{with $p := .page.OrderByDate}}{{url "App.Index" $p}}{{end}}">Date</a>
+		</li>
+		<li>
+			<a href="{{with $p := .page.OrderByRating}}{{url "App.Index" $p}}{{end}}">Rating</a>
+		</li>
+		<li>
+			<a href="{{with $p := .page.OrderByRelevance}}{{url "App.Index" $p}}{{end}}">Relevance</a>
+		</li>
+		<li>
+			<a href="{{if eq .page.Asc false}}{{url "App.Index" .page.SortAsc}}{{else}}{{url "App.Index" .page.SortDesc}}{{end}}">
+				<span class="glyphicon glyphicon-sort"></span>
+			</a>
+		</li>
+		<li>
+			<a href="{{url "App.Index" .page.PrevPage}}" class="{{if eq .page.HasPrev false}}disabled {{end}}btn btn-primary">prev</a>
+		</li>
+		<li>
+			<a href="{{url "App.Index" .page.NextPage}}" class="{{if eq .page.HasNext false}}disabled {{end}}btn btn-primary">next</a>
+		</li>
+	</ul>
+</nav>
+
+
+<div id="main">
 	<form role="form" method="post" action="/">
 		{{with $field := field "quote.Quote" .}}
 		<div class="form-group {{$field.ErrorClass}}">
@@ -35,16 +79,15 @@
 		</div>
 	</form>
 
-{{template "nav.html" .}}
+	<div class="well">
+	{{range $t := .tagcloud}}
+		<a href="?tag={{$t}}">{{$t}}</a>
+	{{end}}
+	</div>
 
 	{{$page := .page}}
+	
 	<div class="clearfix quoteList">
-		<article class="well" id="tagcloud">
-		{{range $t := .tagcloud}}
-			<a href="?tag={{$t}}">{{$t}}</a>
-		{{end}}
-		</article>
-
 	{{range $e := .entries}}
 		<article id="q{{$e.QuoteId}}">
 			<header class="container">

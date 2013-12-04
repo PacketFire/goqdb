@@ -15,11 +15,13 @@
 	<script src="/public/{{.}}" type="text/javascript" charset="utf-8"></script>
 	{{end}}
 	<style type="text/css">
+
 	#main {
 		width: 65%;
 		display: block;
 		margin-left: auto;
 		margin-right: auto;
+		padding-top: 65px;
 	}
 	textarea {
 		width: 100%;
@@ -59,8 +61,12 @@
 	}
 */
 
-	a[href=""] {color: #AAA}
-	a[href=""]:hover {text-decoration: none}
+	a[href=""] {
+		pointer-events: none;
+		cursor: not-allowed;
+		opacity: .65;
+	}
+
 	.quoteList article header,
 	.quoteList article header div { padding: 0; }
 
@@ -76,6 +82,53 @@
 		font-family: "Lucida Console", Monaco, monospace;
 	}
 
+	body > nav {
+		position: fixed;
+		background-color: #428bca;
+
+		color: white;
+		width: 100%;
+		z-index: 1;
+		box-sizing: border-box;
+	}
+
+	nav a:hover {
+		text-decoration: none;
+	}
+
+	nav h1 {
+		font-size: 18px;
+		font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+		font-weight: 500;
+		line-height: 1.1;
+		margin: 0;
+		box-sizing: border-box;
+	}
+
+	nav ul {
+		padding: 0;
+		margin: 0;
+		list-style-type: none;
+		letter-spacing: -0.31em;
+	}
+
+	nav li {
+		letter-spacing: normal;
+		position: relative;
+		display: inline-block;
+		vertical-align: middle;
+		
+	}
+
+	nav a:not(.btn) {
+		color: white;
+		display: block;
+		position: relative;
+
+		padding: 10px;
+
+	}
+	
 	</style>
 </head>
 <body>
