@@ -2,142 +2,23 @@
 
 <html>
 	<head>
-	<title>{{.title}}</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
-	<link rel="shortcut icon" type="image/png" href="/public/img/favicon.png">
-	<script src="/public/js/jquery-1.9.1.min.js" type="text/javascript" charset="utf-8"></script>
-	{{range .moreStyles}}
-	<link rel="stylesheet" type="text/css" href="/public/{{.}}">
-	{{end}}
-	{{range .moreScripts}}
-	<script src="/public/{{.}}" type="text/javascript" charset="utf-8"></script>
-	{{end}}
-	<style type="text/css">
-
-	#main {
-		width: 65%;
-		display: block;
-		margin-left: auto;
-		margin-right: auto;
-		padding-top: 65px;
-	}
-	textarea {
-		width: 100%;
-		display: block;
-
-	}
-
-/*
-	.quote_entry:hover {
-		text-decoration: none;
-	}
-
-	.quote_entry {
-		font-size: 13px;
-		line-height: 20px;
-		display: block;
-		margin: 8px 0;
-		margin-bottom: 16px;
-		position: relative;
-		word-break: normal;
-	}
-
-	.quote_entry a {
-		color: #000000;
-		text-decoration: none;
-		display: block;
-		padding: 10px;
-		height: 100%;
-		width: 100%;
-	}
-
-	.quote_entry .quote_time {
-		font-size: 0.875em;
-	}
-
-	.quote_entry .quote_rating {
-	}
-*/
-
-	a[href=""] {
-		pointer-events: none;
-		cursor: not-allowed;
-		opacity: .65;
-	}
-
-	.quoteList article {
-		padding-top: 45px;
-		margin-top: -45px; 
-	}
-
-	.quoteList article header,
-	.quoteList article header div { padding: 0; }
-
-	.quote:hover {
-		text-decoration: none;
-	}
-
-	.quote pre {
-		word-break: normal;
-	}
-
-	.btn-vote {
-		font-family: "Lucida Console", Monaco, monospace;
-	}
-
-	body > nav {
-		position: fixed;
-		background-color: #428bca;
-
-		color: white;
-		width: 100%;
-		z-index: 1;
-		box-sizing: border-box;
-	}
-
-	nav a:hover {
-		text-decoration: none;
-	}
-
-	nav a.currentSort {
-		background-color: #0f5897;
-	}
-
-	nav h1 {
-		font-size: 18px;
-		font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-		font-weight: 500;
-		line-height: 1.1;
-		margin: 0;
-		box-sizing: border-box;
-	}
-
-	nav ul {
-		padding: 0;
-		margin: 0;
-		list-style-type: none;
-		letter-spacing: -0.31em;
-	}
-
-	nav li {
-		letter-spacing: normal;
-		position: relative;
-		display: inline-block;
-		vertical-align: middle;
+		<title>{{.title}}</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		
-	}
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="shortcut icon" type="image/png" href="/public/img/favicon.png">
+		
+		<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="/public/main.css" />
+	{{range .moreStyles}}
+		<link rel="stylesheet" type="text/css" href="/public/{{.}}">
+	{{end}}
+		
+		<script src="/public/js/jquery-1.9.1.min.js" type="text/javascript" charset="utf-8"></script>
+	{{range .moreScripts}}
+		<script src="/public/{{.}}" type="text/javascript" charset="utf-8"></script>
+	{{end}}
 
-	nav a:not(.btn) {
-		color: white;
-		display: block;
-		position: relative;
+	</head>
 
-		padding: 10px;
-
-	}
-	
-	</style>
-</head>
-<body>
+	<body>
