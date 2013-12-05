@@ -28,13 +28,20 @@
 			</form>
 		</li>
 		<li>
-			<a href="{{with $p := .page.OrderByDate}}{{url "App.Index" $p}}{{end}}">Date</a>
+			<a href="{{with $p := .page.OrderByDate}}{{url "App.Index" $p}}{{end}}" 
+			class="{{if eq .page.Order "date"}}currentSort{{end}}
+			{{if eq .page.Order ""}}currentSort{{end}}"
+			>Date</a>
 		</li>
 		<li>
-			<a href="{{with $p := .page.OrderByRating}}{{url "App.Index" $p}}{{end}}">Rating</a>
+			<a href="{{with $p := .page.OrderByRating}}{{url "App.Index" $p}}{{end}}"
+			class="{{if eq .page.Order "rating"}}currentSort{{end}}"
+			>Rating</a>
 		</li>
 		<li>
-			<a href="{{with $p := .page.OrderByRelevance}}{{url "App.Index" $p}}{{end}}">Relevance</a>
+			<a href="{{with $p := .page.OrderByRelevance}}{{url "App.Index" $p}}{{end}}"
+			class="{{if eq .page.Order "relevance"}}currentSort{{end}}"
+			>Relevance</a>
 		</li>
 		<li>
 			<a href="{{if eq .page.Asc false}}{{url "App.Index" .page.SortAsc}}{{else}}{{url "App.Index" .page.SortDesc}}{{end}}">
