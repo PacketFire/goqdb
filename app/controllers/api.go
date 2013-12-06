@@ -8,14 +8,27 @@ import (
 
 	"net/http"
 	"encoding/json"
+	_"encoding/base64"
 
 	"reflect"
 	"time"
 	"fmt"
+	"strings"
+
+	"io/ioutil"
+	"bytes"
+
+	"crypto/hmac"
+	"crypto/sha256"
 )
 
 type Api struct {
 	GorpController
+}
+
+type ApiAuth struct {
+	ApiKey int
+	PrivKey string
 }
 
 var (
@@ -64,6 +77,58 @@ var (
 
 func init () {
 	revel.TypeBinders[reflect.TypeOf(models.DateRange{})] = RangeBinder
+}
+
+func (c *Api) Authenticate () revel.Result {
+
+	r := c.Request.Header.Get("Authorization")
+
+	if r == "" {
+		c.Response.Status = http.StatusUnauthorized
+		return c.RenderJson(nil)
+	}
+
+	s := strings.Split(r, " ")
+
+	if s[0] != "HMAC" {
+		c.Response.Status = http.StatusUnauthorized
+		return c.RenderJson(nil)
+	}
+
+	s = strings.Split(s[1], ":")
+
+	key, err := c.Txn.SelectStr("SELECT PrivKey FROM ApiAuth WHERE ApiKey = ? LIMIT 1", s[0])
+
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		return c.RenderJson(err)
+	}
+
+	if key == "" {
+		c.Response.Status = http.StatusUnauthorized
+		return c.RenderJson(nil)
+	}
+
+
+	body, err := ioutil.ReadAll(c.Request.Body)
+	c.Request.Body.Close()
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	blob := []byte(c.Request.URL.String() + string(body))
+
+//	revel.TRACE.Printf("blob: %s\n", string(blob))
+
+	mac := hmac.New(sha256.New, []byte(key))
+	mac.Write(blob)
+
+//	revel.TRACE.Printf("got: %x\nexpected: %s", mac.Sum(nil), string(s[1]))
+
+	if fmt.Sprintf("%x", mac.Sum(nil)) != string(s[1]) {
+		c.Response.Status = http.StatusUnauthorized
+		return c.RenderJson(nil)
+	}
+
+	return nil
 }
 
 // index
@@ -125,7 +190,8 @@ func (c *Api) Post () revel.Result {
 
 	c.Response.Status = http.StatusCreated
 
-	return c.Redirect(routes.Api.One(quote.QuoteId))
+	return c.RenderJson(quote)
+//	return c.Redirect(routes.Api.One(quote.QuoteId))
 }
 
 func (c *Api) One (id int) revel.Result {

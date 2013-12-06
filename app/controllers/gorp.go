@@ -62,6 +62,8 @@ func Init() {
 
 	Dbm.AddTable(models.TagEntry{}).SetKeys(false, "QuoteId", "Tag")
 
+	Dbm.AddTable(ApiAuth{}).SetKeys(true, "ApiKey")
+
 	Dbm.CreateTables()
 
 	Dbm.TypeConverter = QdbTypeConverter{}
