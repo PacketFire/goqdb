@@ -62,14 +62,17 @@ func Init() {
 
 	Dbm.AddTable(models.TagEntry{}).SetKeys(false, "QuoteId", "Tag")
 
-	Dbm.AddTable(ApiAuth{}).SetKeys(true, "ApiKey")
+	t := Dbm.AddTable(ApiAuth{}).SetKeys(true, "ApiAuthId")
+	c := t.ColMap("ApiKey")
+	c.SetNotNull(true)
+	c.SetUnique(true)
 
 	Dbm.CreateTables()
 
 	Dbm.TypeConverter = QdbTypeConverter{}
 
 	Dbm.Exec(`
-		CREATE VIEW QdbView AS
+		CREATE VIEW IF NOT EXISTS QdbView AS
 			SELECT QdbEntry.*, IFNULL(G.Tags, "") AS Tags
 			FROM QdbEntry
 			LEFT JOIN (
@@ -83,7 +86,7 @@ func Init() {
 
 	// TagCloud is a representation of the most common tags of the most recent entries
 	Dbm.Exec(`
-		CREATE VIEW TagCloud AS
+		CREATE VIEW IF NOT EXISTS TagCloud AS
 			SELECT TagEntry.Tag
 			FROM TagEntry
 			LEFT JOIN (
