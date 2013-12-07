@@ -21,7 +21,7 @@
 						<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
 					</form>
 				</li>
-				<li>
+				<li class="datesort">
 					<a href="{{with $p := .page.OrderByDate}}{{url "App.Index" $p}}{{end}}" 
 					class="{{if eq .page.Order "date"}}currentSort{{end}}
 					{{if eq .page.Order ""}}currentSort{{end}}"
@@ -42,11 +42,11 @@
 						<span class="glyphicon glyphicon-sort"></span>
 					</a>
 				</li>
-				<li>
-					<a href="{{url "App.Index" .page.PrevPage}}" class="{{if eq .page.HasPrev false}}disabled {{end}}btn btn-primary">prev</a>
-				</li>
-				<li>
+				<li class="nextpage">
 					<a href="{{url "App.Index" .page.NextPage}}" class="{{if eq .page.HasNext false}}disabled {{end}}btn btn-primary">next</a>
+				</li>
+				<li class="prevpage">
+					<a href="{{url "App.Index" .page.PrevPage}}" class="{{if eq .page.HasPrev false}}disabled {{end}}btn btn-primary">prev</a>
 				</li>
 			</ul>
 		</nav>
