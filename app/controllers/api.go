@@ -8,14 +8,31 @@ import (
 
 	"net/http"
 	"encoding/json"
+	_"encoding/base64"
+	"encoding/hex"
 
 	"reflect"
 	"time"
 	"fmt"
+	"strings"
+
+	"io/ioutil"
+	"bytes"
+
+	"crypto/hmac"
+	"crypto/sha256"
+
+	"errors"
 )
 
 type Api struct {
 	GorpController
+}
+
+type ApiAuth struct {
+	ApiAuthId int
+	ApiKey string
+	PrivKey []byte
 }
 
 var (
@@ -66,6 +83,81 @@ func init () {
 	revel.TypeBinders[reflect.TypeOf(models.DateRange{})] = RangeBinder
 }
 
+func (c *Api) Authenticate () revel.Result {
+
+	r := c.Request.Header.Get("Authorization")
+
+	if r == "" {
+		c.Response.Status = http.StatusUnauthorized
+		revel.TRACE.Print("Authorization header not supplied")
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
+	}
+
+	s := strings.Split(r, " ")
+
+	if s[0] != "HMAC" {
+		c.Response.Status = http.StatusUnauthorized
+		revel.TRACE.Printf("no 'HMAC' marker in field: %q", r)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
+	}
+
+	s = strings.Split(s[1], ":")
+
+	t, err := c.Txn.SelectStr(`SELECT IFNULL(PrivKey, "") FROM ApiAuth WHERE ApiKey = ? LIMIT 1`, s[0])
+
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Printf("error selecting private key from db: %q", s[0])
+		revel.ERROR.Print(err)
+		panic(err)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
+	}
+
+	if t == "" {
+		c.Response.Status = http.StatusUnauthorized
+		revel.TRACE.Printf("key does not exist in db: %q", s[0])
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
+	}
+
+	key := []byte(t)
+
+	d, err := hex.DecodeString(s[1])
+
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Printf("error decoding hex string: %q", s[1])
+		revel.ERROR.Print(err)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
+	}
+
+	body, err := ioutil.ReadAll(c.Request.Body)
+
+	if err != nil {
+		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Print("error reading request body")
+		revel.ERROR.Print(err)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
+	}
+
+	c.Request.Body.Close()
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	blob := []byte(c.Request.URL.String() + string(body))
+
+//	revel.TRACE.Printf("blob: %s\n", string(blob))
+
+	mac := hmac.New(sha256.New, key)
+	mac.Write(blob)
+
+	if !hmac.Equal(mac.Sum(nil), d) {
+		c.Response.Status = http.StatusUnauthorized
+		revel.TRACE.Printf("authentication failure:\ngot: %x\nexpected: %x", mac.Sum(nil), d)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
+	}
+
+	return nil
+}
+
 // index
 func (c *Api) Index (R models.DateRange) revel.Result {
 
@@ -76,7 +168,7 @@ func (c *Api) Index (R models.DateRange) revel.Result {
 
 	var entries []models.QdbView
 	if R.Lower == 0 {
-		query += ` ORDER BY Rating DESC `
+		query += ` ORDER BY QuoteId ASC `
 	} else {
 
 		params["lower"] = R.Lower
@@ -92,6 +184,7 @@ func (c *Api) Index (R models.DateRange) revel.Result {
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
 		revel.ERROR.Print(err)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
 	}
 
 	return c.RenderJson(entries)
@@ -106,25 +199,28 @@ func (c *Api) Post () revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Print("error decoding request body")
 		revel.ERROR.Print(err)
-		return c.RenderJson(err)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
 	}
 
 	if quote.Quote == "" || quote.Author == "" {
 		c.Response.Status = http.StatusBadRequest
-		return c.RenderJson(quote)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
 	}
 
 	err = c.insertView(&quote)
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Print("error inserting quote")
 		revel.ERROR.Print(err)
-		return c.RenderJson(err)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
 	}
 
 	c.Response.Status = http.StatusCreated
 
+//	return c.RenderJson(quote)
 	return c.Redirect(routes.Api.One(quote.QuoteId))
 }
 
@@ -133,13 +229,14 @@ func (c *Api) One (id int) revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Printf("error retreiving from db: %d", id)
 		revel.ERROR.Print(err)
-		return c.RenderJson(err)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
 	}
 
 	if obj == nil {
 		c.Response.Status = http.StatusNotFound
-		return c.RenderJson(nil)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
 	}
 
 	entry := obj.(*models.QdbEntry)
@@ -151,8 +248,9 @@ func (c *Api) Total () revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Print("error retreiving total from db")
 		revel.ERROR.Print(err)
-		return c.RenderJson(err)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
 	}
 
 	return c.RenderJson(total)
@@ -163,13 +261,15 @@ func (c *Api) UpVote (id int) revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Printf("error upvoting: %d", id)
 		revel.ERROR.Print(err)
-		return c.RenderJson(err)
+
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
 	}
 
 	if !found {
 		c.Response.Status = http.StatusNotFound
-		return c.RenderJson(nil)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
 	}
 
 	return c.Redirect(routes.Api.One(id))
@@ -180,13 +280,14 @@ func (c *Api) DownVote (id int) revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Printf("error downvoting: %d", id)
 		revel.ERROR.Print(err)
-		return c.RenderJson(err)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
 	}
 
 	if !found {
 		c.Response.Status = http.StatusNotFound
-		return c.RenderJson(err)
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
 	}
 
 	return c.Redirect(routes.Api.One(id))
