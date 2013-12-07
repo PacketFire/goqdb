@@ -3,7 +3,7 @@
 	<a href="{{url "App.Index" .page.PrevPage}}" class="{{if eq .page.HasPrev false}}disabled {{end}}pull-left btn btn-default">prev</a>
 
 	<div class="col-lg-8 col-xs-8">
-		<form role="search" class="form-inline col-lg-6" metho="get">
+		<form role="search" class="form-inline col-lg-6" method="get">
 			<div class="form-group">
 				<input name="search" type="text" class="form-control" placeholder="search" />
 				<input name="order" type="hidden" value="relevance" />
@@ -24,7 +24,6 @@
 				href="{{with $p := .page.OrderByRelevance}}{{url "App.Index" $p}}{{end}}"
 			>Relevance</a>
 			&nbsp;
-			<!-- TODO: order direction could just be a bool "asc" toggle -->
 			<a 
 				href="{{if eq .page.Asc false}}
 					{{url "App.Index" .page.SortAsc}}
