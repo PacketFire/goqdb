@@ -56,23 +56,26 @@ All resources return *200* on success or *500* with an undefined body
 if fatal errors were encountered. Resources requiring an id return a 
 *404* with undefined body if the id does not exist in the database. 
 
-### Retrieve entries by date
-	
-Quotes from *the current year*
+### Authentication
+
+Authentication uses HMAC-SHA256 of the concatenation of
+the request URL and, request body (if there is one), 
+signed by the private key associated with the user's api key.
+This is sent using the Authorization header as so:
+
+<code>
+	Authorization: HMAC <em>apikey</em>:<em>digest</em>
+</code>
+
+Note: All API actions require authentication
+
+### Main listing, sorted by entry id
 
 	GET /api/v0
 
-#### Specifying a date range
+### Retrieve entries by date
 
-Year:
-
-	GET /api/2010
-
-Month:
-	
-	GET /api/2010/7
-
-Day:
+Year/Month/Day, Eg.
 
 	GET /api/v0/2010/7/1
 
@@ -88,10 +91,11 @@ if the post data did not pass validation
 Request:
 
 	POST /api/v0/ HTTP/1.1
+	Authorization: HMAC jgr:ee64125d7a28bda807a0276aa6705b607181f1cb6cd65470c2def0b5f160d9ee
 	Content-Type: application/json
 	Content-Length: 58
 
-	{"Quote": "test", "Author": "jgr", Tags: ["foo", "bar"]}
+	{"Quote": "test", "Author": "jgr", "Tags": ["foo", "bar"]}
 
 Response:
 

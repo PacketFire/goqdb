@@ -10,7 +10,8 @@ import (
 
 	"reflect"
 	"strings"
-	"fmt"
+	_"fmt"
+	"errors"
 )
 
 type App struct {
@@ -146,8 +147,8 @@ func (c App) Index (page models.Pagination) revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Print("error retreiving page entries count from db")
 		revel.ERROR.Print(err)
-		// TODO: redirect to error page
 		panic(err)
 	}
 
@@ -188,8 +189,8 @@ func (c App) Index (page models.Pagination) revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Print("error retreiving page entries from db")
 		revel.ERROR.Print(err)
-		//TODO: redirect to error page
 		panic(err)
 	}
 
@@ -204,8 +205,8 @@ func (c App) Index (page models.Pagination) revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Print("error retreiving tag cloud entries from db")
 		revel.ERROR.Print(err)
-		//TODO: redirect to error page
 		panic(err)
 	}
 
@@ -224,8 +225,8 @@ func (c *App) Post (quote models.QdbView, page models.Pagination) revel.Result {
 
 		if err != nil {
 			c.Response.Status = http.StatusInternalServerError
+			revel.ERROR.Print("error inserting quote to db")
 			revel.ERROR.Print(err)
-			//TODO: redirect to error page
 			panic(err)
 		}
 	}
@@ -240,13 +241,15 @@ func (c *App) One (id int) revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Printf("error retreiving entry from db: %d", id)
 		revel.ERROR.Print(err)
-		return Utf8Result(fmt.Sprint(err))
+		panic(err)
+		return c.RenderError(nil)
 	}
 
 	if obj == nil {
 		c.Response.Status = http.StatusNotFound
-		return Utf8Result(fmt.Sprintf("No such id: %d", id))
+		return c.RenderError(errors.New(http.StatusText(c.Response.Status)))
 	}
 
 	entry := obj.(*models.QdbEntry)
@@ -259,14 +262,15 @@ func (c *App) UpVote (id int, page models.Pagination) revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Printf("error upvoting: %d", id)
 		revel.ERROR.Print(err)
-		//TODO: redirect to error page
-		return c.Redirect(routes.App.Index(page))
+		panic(err)
+		return c.RenderError(nil)
 	}
 
 	if !found {
 		c.Response.Status = http.StatusNotFound
-		//TODO: what to do?
+		return c.RenderError(nil)
 	}
 
 	return c.Redirect(routes.App.Index(page))
@@ -277,14 +281,15 @@ func (c *App) DownVote (id int, page models.Pagination) revel.Result {
 
 	if err != nil {
 		c.Response.Status = http.StatusInternalServerError
+		revel.ERROR.Printf("error downvoting: %d", id)
 		revel.ERROR.Print(err)
-		//TODO: redirect to error page
-		return c.Redirect(routes.App.Index(page))
+		panic(err)
+		return c.RenderError(nil)
 	}
 
 	if !found {
 		c.Response.Status = http.StatusNotFound
-		//TODO: what to do?
+		return c.RenderError(nil)
 	}
 
 	return c.Redirect(routes.App.Index(page))
