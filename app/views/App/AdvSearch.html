@@ -1,0 +1,24 @@
+
+{{template "header.html" .}}
+		<form role="search" class="row" action="{{url "App.Index" }}" method="get">
+			<div class="form-group col-md-4">
+				<label class="text-info">from
+					<input name="from" class="form-control" type="date"/>
+				</label>
+				<label class="text-info">to
+					<input name="to" class="form-control" type="date"/>
+				</label>
+			</div>
+			<div class="form-group">
+				<label class="text-info">sort
+				<select class="form-control" name="sort">
+					<option></option>{{range sorts}}
+					<option value="{{.}}">{{.}}</option>
+				{{end}}</select></label>
+			</div>
+			<div class="form-group col-md-4">
+				<input name="search" class="form-control" type="text" placeholder="search" /> 
+			</div>
+			<input class="btn" type="submit" value="search" />
+		</form>
+{{template "footer.html" .}}

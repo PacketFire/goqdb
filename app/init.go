@@ -18,4 +18,9 @@ func init() {
 		revel.InterceptorFilter,       // Run interceptors around the action.
 		revel.ActionInvoker,           // Invoke the action.
 	}
+
+	revel.TimeFormats = append(revel.TimeFormats, "2006-01-02")
+	revel.TimeFormats = append(revel.TimeFormats, "2006-01-02 15:04")
+
+	revel.ERROR_CLASS = "has-error"
 }
