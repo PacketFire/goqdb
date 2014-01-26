@@ -65,7 +65,11 @@ func (c *App) AdvSearch () revel.Result {
 
 func (c *App) Random () revel.Result {
 	arg := models.Args{Sort: models.SORT_RANDOM, Size:1}
-	id := c.getEntries(arg)[0].QuoteId
+
+	var id int
+	if e := c.getEntries(arg); len(e) != 0 {
+		id = e[0].QuoteId
+	}
 	return c.Redirect(routes.App.Index(models.Args{Id: id}))
 }
 
