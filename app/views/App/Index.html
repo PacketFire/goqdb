@@ -69,6 +69,10 @@
 				 [{{$entry.Rating}}] 
 				<a href="{{url "App.Vote" $entry.QuoteId "down" $arg}}"
 					class="btn btn-danger btn-xs btn-vote">-</a>
+				
+				<a href="{{url "App.Vote" $entry.QuoteId "delete" $arg}}"
+					class="btn btn-warning btn-xs btn-vote">x</a>
+			</p>
 			</p>
 
 			<ul class="tags list-inline">

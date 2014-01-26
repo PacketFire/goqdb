@@ -55,8 +55,11 @@ func (c *App) Index (arg models.Args) revel.Result {
 }
 
 func (c *App) Quote (id int) revel.Result {
-	e := c.getEntry(id)
-	return Utf8Result(e[0].Quote)
+	var quote string
+	if e := c.getEntry(id); len(e) != 0 {
+		quote = e[0].Quote
+	}
+	return Utf8Result(quote)
 }
 
 func (c *App) AdvSearch () revel.Result {

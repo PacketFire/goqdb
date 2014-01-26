@@ -4,9 +4,6 @@ import (
 	"github.com/robfig/revel"
 	"github.com/PacketFire/goqdb/app/models"
 	"strings"
-	"encoding/hex"
-	"crypto/md5"
-	"io"
 	"time"
 )
 
@@ -21,16 +18,6 @@ const (
 	ERR_MULTIPLE_VOTE = "You may not vote more than once"
 	ERR_ID_NOT_FOUND = "id not found"
 )
-
-func setUserId (c *revel.Controller) revel.Result {
-	h := md5.New()
-
-	io.WriteString(h, c.Request.RemoteAddr)
-	io.WriteString(h, c.Request.Header.Get("User-Agent"))
-
-	c.Params.Set("userid", hex.EncodeToString(h.Sum(nil)))
-	return nil
-}
 
 func (c *Base) getEntries (arg models.Args) []models.Quote {
 	var entries []models.Quote
@@ -138,9 +125,7 @@ func (c *Base) getTotal (arg models.Args) int64 {
 
 func (c *Base) insertQuote (quote *models.Quote) {
 
-	var userId string
-
-	c.Params.Bind(&userId, "userid")
+	userId := c.Session.Id()
 
 	if !c.canPost(userId) {
 		c.Flash.Error(ERR_POST_THRESHOLD_REACHED)
@@ -223,15 +208,15 @@ func (c *Base) vote (voteId int, voteType string) {
 		return
 	}
 
-	var userId string
-	c.Params.Bind(&userId, "userid")
-
-	if !c.canVote(voteId, userId) {
-		c.Flash.Error(ERR_MULTIPLE_VOTE)
-		return
-	}
+	userId := c.Session.Id()
 
 	if voteType != models.VOTE_DELETE {
+
+		if !c.canVote(voteId, userId) {
+			c.Flash.Error(ERR_MULTIPLE_VOTE)
+			return
+		}
+
 		query := `UPDATE QuoteEntry SET Rating = Rating`
 		switch voteType {
 			case models.VOTE_UP:
@@ -249,6 +234,21 @@ func (c *Base) vote (voteId int, voteType string) {
 		} else if affected == 0 {
 			c.Flash.Error(ERR_ID_NOT_FOUND)
 			return
+		}
+	} else {
+		t := time.Now().Truncate(24 * time.Hour).Unix()
+		res, err := c.Txn.Exec(
+			`DELETE FROM QuoteEntry ` +
+			`WHERE QuoteId = ? AND UserId = ? AND Created >= ?`,
+			voteId, userId, t)
+
+		if err != nil {
+			panic(err)
+		}
+		if n, err := res.RowsAffected(); n >= 1 {
+			return
+		} else if err != nil {
+			panic(err)
 		}
 	}
 
