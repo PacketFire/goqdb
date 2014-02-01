@@ -210,12 +210,11 @@ func (c *Base) vote (voteId int, voteType string) {
 
 	userId := c.Session.Id()
 
+	if !c.canVote(voteId, userId) {
+		c.Flash.Error(ERR_MULTIPLE_VOTE)
+		return
+	}
 	if voteType != models.VOTE_DELETE {
-
-		if !c.canVote(voteId, userId) {
-			c.Flash.Error(ERR_MULTIPLE_VOTE)
-			return
-		}
 
 		query := `UPDATE QuoteEntry SET Rating = Rating`
 		switch voteType {
@@ -263,6 +262,8 @@ func (c *Base) vote (voteId int, voteType string) {
 }
 
 func (c *Base) canVote (voteId int, userId string) bool {
+
+	revel.TRACE.Println(voteId, userId)
 
 	t := time.Now().Truncate(24 * time.Hour).Unix()
 
