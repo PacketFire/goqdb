@@ -20,5 +20,27 @@
 	{{end}}
 
 	</head>
+	<body class="container">
 
-	<body>
+		<nav role="navigation" class="row">
+
+			<ul class="list-inline">
+				<li>
+					<header>
+						<a href="/">
+							<h1 class="h3">QDB</h1>
+						</a>
+					</header>
+				</li>
+				<li>
+					<a class="btn" href="{{url "App.AdvSearch"}}">adv. search</a>
+				</li>
+				<li>
+					<a class="btn" href="{{url "App.Random"}}">random</a>
+				</li>
+				<li>
+					<a class="btn" href="{{sortby "rating" | url "App.Index"}}">top</a>
+				</li>
+			</ul>
+		</nav>
+		

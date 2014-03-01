@@ -3,13 +3,7 @@
 # ~~~~
 
 module:testrunner
-
-GET	/                                       App.Index
-POST    /                                       App.Post
-GET	/q/:id					App.One
-
-GET     /upvote					App.UpVote
-GET     /downvote				App.DownVote
+module:jobs
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
@@ -17,22 +11,23 @@ GET     /favicon.ico                            404
 # Map static resources from the /app/public folder to the /public path
 GET     /public/*filepath                       Static.Serve("public")
 
-# API things ###
-#
-GET	/api/v0/:id/view			Api.One
+GET	    /	        App.Index
+POST	/	        App.Insert
+GET	    /quote/:id	App.Quote
+GET	    /adv	    App.AdvSearch
 
-GET	/api/v0/total				Api.Total
+GET	    /random	    App.Random
 
-GET	/api/v0/				Api.Index
-GET 	/api/v0/:Y				Api.Index
-GET	/api/v0/:Y/:m				Api.Index
-GET	/api/v0/:Y/:m/:d			Api.Index
+GET	/vote/:voteId/:voteType	App.Vote
 
-POST	/api/v0					Api.Post
+GET	    /api/v1/	    Api.Index
+POST	/api/v1/	    Api.Insert
+GET	    /api/v1/total	Api.Total
 
+GET	    /api/v1/:id	        Api.Single
 
-PUT	/api/v0/:id/rating			Api.UpVote
-DELETE	/api/v0/:id/rating			Api.DownVote
+PATCH	/api/v1/:id/:typ	Api.Vote
+
 
 # Catch all
 *       /:controller/:action                    :controller.:action

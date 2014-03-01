@@ -1,126 +1,88 @@
-		{{set . "title" "QDB"}}
-		{{template "header.html" .}}
+{{template "header.html" .}}
 
-		<nav role="navigation">
+		<form id="newquote" class="form-inline row" action="/" method="post">
+			{{with $f := field "quote.Quote" .}}
+			<div class="form-group {{$f.ErrorClass}}">
+				<textarea name="{{$f.Name}}" class="form-control" placeholder="quote" rows="1">{{$f.Flash}}</textarea>
+			</div>
+			{{end}}
+			{{with $f := field "quote.Tags" .}}
+			<div class="form-group {{$f.ErrorClass}}">
+				<input name="{{$f.Name}}" class="form-control" type="text" placeholder="tags" 
+					value="{{$f.Flash}}" />
+			</div>
+			{{end}}
+			{{with $f := field "quote.Author" .}}
+			<div class="form-group {{$f.ErrorClass}}">
+				<input name="{{$f.Name}}" class="form-control" type="text" placeholder="author" 
+					value="{{$f.Flash}}"/>
+			</div>
+			{{end}}
+			<input class="btn" type="submit" value="submit" />
+		</form>
 
-			<ul>
-				<li>
-					<header>
-						<a href="/"><h1>QDB</h1></a>
-					</header>
-				</li>
-				<li>
-					<form role="search" class="" method="get">
-						<input name="order" type="hidden" value="relevance" />
-						<input name="asc" type="hidden" value="true" />
-					{{with $s := .page.Size}}
-						<input name="size" type="hidden" value="{{$s}}" />
-					{{end}}
-						<label class="sr-only" for="search">Search</label>
-						<input name="search" id="search" type="text" class="form-control" placeholder="search" />
-						<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
-					</form>
-				</li>
-				<li class="datesort">
-					<a href="{{with $p := .page.OrderByDate}}{{url "App.Index" $p}}{{end}}" 
-					class="{{if eq .page.Order "date"}}currentSort{{end}}
-					{{if eq .page.Order ""}}currentSort{{end}}"
-					>Date</a>
-				</li>
-				<li>
-					<a href="{{with $p := .page.OrderByRating}}{{url "App.Index" $p}}{{end}}"
-					class="{{if eq .page.Order "rating"}}currentSort{{end}}"
-					>Rating</a>
-				</li>
-				<li>
-					<a href="{{with $p := .page.OrderByRelevance}}{{url "App.Index" $p}}{{end}}"
-					class="{{if eq .page.Order "relevance"}}currentSort{{end}}"
-					>Relevance</a>
-				</li>
-				<li>
-					<a href="{{if eq .page.Asc false}}{{url "App.Index" .page.SortAsc}}{{else}}{{url "App.Index" .page.SortDesc}}{{end}}">
-						<span class="glyphicon glyphicon-sort"></span>
-					</a>
-				</li>
-				<li class="nextpage">
-					<a href="{{url "App.Index" .page.NextPage}}" class="{{if eq .page.HasNext false}}disabled {{end}}btn btn-primary">next</a>
-				</li>
-				<li class="prevpage">
-					<a href="{{url "App.Index" .page.PrevPage}}" class="{{if eq .page.HasPrev false}}disabled {{end}}btn btn-primary">prev</a>
-				</li>
-			</ul>
-		</nav>
-
-
-		<div id="main">
-			<form role="form" method="post" action="/">
-				{{with $field := field "quote.Quote" .}}
-				<div class="form-group {{$field.ErrorClass}}">
-					<textarea class="form-control" id="quote" name="{{$field.Name}}" placeholder="quote">{{$field.Flash}}</textarea>
-				</div>
-				{{end}}
-
-				<div class="row">
-					{{with $field := field "quote.Tags" .}}
-					<div class="form-group {{$field.ErrorClass}} col-lg-4">
-						<input class="form-control" id="tags" name="{{$field.Name}}" type="text" placeholder="tags" value="{{$field.Flash}}" />
-					</div>
-					{{end}}
-					
-					{{$savedAuthor := .savedAuthor}}
-					{{with $field := field "quote.Author" .}}
-					<div class="form-group {{$field.ErrorClass}} col-lg-2">
-						<input class="form-control" id="author" name="{{$field.Name}}" type="text" placeholder="author" value="{{$savedAuthor}}" />
-					</div>
-					{{end}}
-
-					<div class="form-group">
-						<button id="submit" name="submit" type="submit" class="btn btn-primary">submit</button>
-					</div>
-				</div>
-			</form>
-
-			<div class="well">
-			{{range $t := .tagcloud}}
-				<a href="?tag={{$t}}">{{$t}}</a>
+		<form role="search" class="form-inline row" method="get">
+		{{set . "search" .arg.Search}} {{set . "tag" .arg.Tag}}
+		{{with $v := field "tag" .}}
+			{{if notzero $v.Value}}<input name="{{$v.Name}}" type="hidden" value="{{$v.Value}}" />{{end}}
+		{{end}}
+			<div class="form-group">
+			{{with $v := field "search" .}}
+				<input name="{{$v.Name}}" class="form-control" type="text" placeholder="search" 
+					value="{{$v.Value}}" />
 			{{end}}
 			</div>
-
-			{{$page := .page}}
-			
-			<div class="clearfix quoteList">
-			{{range $e := .entries}}
-				<article id="q{{$e.QuoteId}}">
-					<header class="container">
-						<div class="col-xs-8">
-							<p class="text-info">{{$e.Author}} &mdash; {{$e.Time}}</p>
-						</div>
-
-						<div class="col-xs-4 text-right">
-							<a class="btn btn-danger btn-xs btn-vote" role="button" 
-								href="{{url "App.DownVote" $e.QuoteId $page}}#q{{$e.QuoteId}}"
-							>-</a>
-							<span>{{$e.Rating}}</span>
-							<a class="btn btn-success btn-xs btn-vote" role="button" 
-								href="{{url "App.UpVote" $e.QuoteId $page}}#q{{$e.QuoteId}}"
-							>+</a>
-						</div>
-					</header>
-					<!-- TODO: could use a `well' class instead -->
-					<a class="quote" href="/q/{{$e.QuoteId}}">
-						<pre class="">{{$e.Clip}}</pre>
-					</a>
-					<p class="text-info">
-					{{range $t := $e.Tags}}
-						<a href="?tag={{$t}}">{{$t}}</a>
-					{{end}}
-					</p>
-				</article>
-			{{else}}
-				<p class="text-info">No more results</p>
-			{{end}}
-			</div>
+			<input class="btn" type="submit" value="search" />
+		</form>
+	
+		<div class="row">
+			<a class="btn" 
+				href="{{prev .hasPrev .arg}}">prev</a>
+			 / 
+			<a class="btn" 
+				href="{{next .hasNext .arg}}">next</a>
 		</div>
 
+		<div class="row">
+			<p class="text-warning">{{.flash.error}}</p>
+		</div>
+		{{$arg := .arg}}
+		{{range $entry := .entries}}
+		<article class="row quote">
 
-		{{template "footer.html" .}}
+			<header>
+				<p>
+				<a href="{{idarg $entry.QuoteId | url "App.Index"}}">#{{$entry.QuoteId}}</a>:
+				{{epochdatetime $entry.Created}}
+				&mdash; 
+				{{$entry.Author}} 
+				</p>
+			</header>
+
+			<a href="{{url "App.Quote" $entry.QuoteId}}">
+				<pre>{{$entry.Quote}}</pre>
+			</a>
+
+			<p class="rating">
+				<a href="{{url "App.Vote" $entry.QuoteId "up" $arg}}"
+					class="btn btn-success btn-xs btn-vote">+</a>
+				 [{{$entry.Rating}}] 
+				<a href="{{url "App.Vote" $entry.QuoteId "down" $arg}}"
+					class="btn btn-danger btn-xs btn-vote">-</a>
+				
+				<a href="{{url "App.Vote" $entry.QuoteId "delete" $arg}}"
+					class="btn btn-warning btn-xs btn-vote">x</a>
+			</p>
+			</p>
+
+			<ul class="tags list-inline">
+			{{range $tag := $entry.Tags}}
+				<li>
+					<a href="{{tagarg $tag | url "App.Index"}}">{{$tag}}</a>
+				</li>
+			{{end}}
+			</ul>
+
+		</article>
+		{{end}}
+{{template "footer.html" .}}

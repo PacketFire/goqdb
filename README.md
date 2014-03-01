@@ -19,10 +19,10 @@ running
 revel run github.com/PacketFire/goqdb
 ```
 
-api
+API
 ---
 
-### QdbView ###
+### Quote ###
 
 <table>
 	<thead>
@@ -49,6 +49,9 @@ api
 		<tr>
 			<td>Tags</td> <td>[]string</td> <td>An array of tag strings, white space is trimmed from either side</td>
 		</tr>
+		<tr>
+			<td>UserId</td> <td>string</td> <td>Author's user id hash</td>
+		</tr>
 	</tbody>
 </table>
 
@@ -56,42 +59,48 @@ All resources return *200* on success or *500* with an undefined body
 if fatal errors were encountered. Resources requiring an id return a 
 *404* with undefined body if the id does not exist in the database. 
 
-### Authentication
+### Index
 
-Authentication uses HMAC-SHA256 of the concatenation of
-the request URL and, request body (if there is one), 
-signed by the private key associated with the user's api key.
-This is sent using the Authorization header as so:
+	GET /api/v1
+	GET /api/v1/:id
 
-<code>
-	Authorization: HMAC <em>apikey</em>:<em>digest</em>
-</code>
-
-Note: All API actions require authentication
-
-### Main listing, sorted by entry id
-
-	GET /api/v0
-
-### Retrieve entries by date
-
-Year/Month/Day, Eg.
-
-	GET /api/v0/2010/7/1
+#### Parameters
+<table>
+	<tr>
+		<td>id</td> <td>return single entry</td>
+	</tr>
+	<tr>
+		<td>tag</td> <td>return quotes with tag</td>
+	</tr>
+	<tr>
+		<td>search</td> <td>search quotes</td>
+	</tr>
+	<tr>
+		<td>from</td> <td>date string in the form mm/dd/yyyy</td>
+	</tr>
+	<tr>
+		<td>to</td> <td>same as above</td>
+	</tr>
+	<tr>
+		<td>sort</td> <td>one of relevence, rating, date, random</td>
+	</tr>
+	<tr>
+		<td>desc</td> <td>boolean, sort in descending order</td>
+	</tr>
+	<tr>
+		<td>size</td> <td>maximum amount of entries to return, capped at 4096 by default</td>
+	</tr>
+</table>
 
 ### Insert a new entry
 
-	POST /api/v0
+	POST /api/v1
 
-Accepts *Quote*, *Author* and *Tags* fields of a *QdbView*
-
-Note: POST returns 201 Created on success and 400 Bad Request
-if the post data did not pass validation
+Accepts *Quote*, *Author* and *Tags* fields of a *Quote*
 
 Request:
 
 	POST /api/v0/ HTTP/1.1
-	Authorization: HMAC jgr:ee64125d7a28bda807a0276aa6705b607181f1cb6cd65470c2def0b5f160d9ee
 	Content-Type: application/json
 	Content-Length: 58
 
@@ -100,11 +109,8 @@ Request:
 Response:
 
 	HTTP/1.1 201 Created
-	Content-Length: 135
-	Content-Type: application/json
-	Date: Mon, 25 Nov 2013 16:11:28 GMT
-	Set-Cookie: REVEL_FLASH=; Path=/
-	Set-Cookie: REVEL_SESSION=64172d7dab5d922c6cdc2ca993e72647e3585d75-%00_TS%3A1387987888%00; Path=/; Expires=Wed, 25 Dec 2013 16:11:28 UTC
+	Content-Type: application/json	
+	...
 
 	{
 	  "QuoteId": 20,
@@ -118,17 +124,17 @@ Response:
 	 ]
 	}
 
-### Retrieve quote entry
+### Vote
 
-*:id* is used here in place of the quote id for the target entry
+	PATCH /api/v1/:id/:typ
 
-	GET /api/v0/:id/view
+#### Parameters
 
-### Upvote a quote
-
-	PUT /api/v0/:id/rating
-
-### Downvote a quote
-
-	DELETE /api/v0/:id/rating
-
+<table>
+	<tr>
+		<td>id</td> <td>target id</td>
+	</tr>
+	<tr>
+		<td>typ</td> <td>one of up, down, delete</td>
+	</tr>
+</table>
